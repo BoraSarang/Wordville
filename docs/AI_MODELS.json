@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "language_lock": {
     "response": "ko",
     "reasoning": "ko",
@@ -15,8 +15,9 @@
     "session_auto_save_minutes": 15
   },
   "default_chain": [
-    "deepseek-v4-flash-free",
-    "mimo-v2.5-free"
+    "zen:deepseek-v4-flash-free",
+    "zen:mimo-v2.5-free",
+    "openrouter:openai/gpt-oss-20b:free"
   ],
   "models": {
     "chat": {
@@ -25,8 +26,13 @@
       "max_tokens": 4096,
       "prompt_version": "chat_v0.1",
       "vision_support": false,
-      "note": "OpenCode Zen 무료 모델 (FreeUsageLimitError 주의: rate limit 존재)",
-      "provider": "opencode-zen"
+      "note": "Zen 무료 1·2차 → OpenRouter :free 최종 폴백 (gpt-oss-20b:free, 3~5분 느림)",
+      "provider": "opencode-zen",
+      "chain": [
+        "zen:deepseek-v4-flash-free",
+        "zen:mimo-v2.5-free",
+        "openrouter:openai/gpt-oss-20b:free"
+      ]
     },
     "code": {
       "model": "deepseek-v4-flash-free",
@@ -34,8 +40,13 @@
       "max_tokens": 8192,
       "prompt_version": "code_v0.1",
       "vision_support": false,
-      "note": "OpenCode Zen 무료 모델 (FreeUsageLimitError 주의: rate limit 존재)",
-      "provider": "opencode-zen"
+      "note": "Zen 무료 1·2차 → OpenRouter :free 최종 폴백 (gpt-oss-20b:free, 3~5분 느림)",
+      "provider": "opencode-zen",
+      "chain": [
+        "zen:deepseek-v4-flash-free",
+        "zen:mimo-v2.5-free",
+        "openrouter:openai/gpt-oss-20b:free"
+      ]
     },
     "judge": {
       "model": "deepseek-v4-flash-free",
@@ -43,8 +54,13 @@
       "max_tokens": 1024,
       "prompt_version": "judge_v0.1",
       "vision_support": false,
-      "note": "OpenCode Zen 무료 모델 (FreeUsageLimitError 주의: rate limit 존재)",
-      "provider": "opencode-zen"
+      "note": "Zen 무료 1·2차 → OpenRouter :free 최종 폴백 (gpt-oss-20b:free, 3~5분 느림)",
+      "provider": "opencode-zen",
+      "chain": [
+        "zen:deepseek-v4-flash-free",
+        "zen:mimo-v2.5-free",
+        "openrouter:openai/gpt-oss-20b:free"
+      ]
     }
   },
   "platforms": {
@@ -80,7 +96,7 @@
   "cost_guard": {
     "max_cost_per_task_usd": 0.0,
     "alert_at_usd": 0.0,
-    "note": "Zen 무료 모델 — 비용 $0. 단, FreeUsageLimitError 발생 시 재시도 정책 필요"
+    "note": "무료 체인 — 비용 $0. Zen 429 시 OpenRouter :free 폴백"
   },
   "e2e": {
     "k6_threshold_p95_ms": 300

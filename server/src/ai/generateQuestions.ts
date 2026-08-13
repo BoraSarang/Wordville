@@ -1,7 +1,7 @@
 // 문제 생성 파이프라인 (T2.1) — 생성 → 심판 루프 (최대 2회 재생성) → DB 저장
 // 사용법: npm run generate:questions -- [category] [date]
 import { pool } from '../db.js';
-import { chatCompletion } from './zen.js';
+import { chatWithFallback } from './llm.js';
 import { buildGeneratePrompt, buildJudgePrompt, GENERATE_PROMPT_VERSION, JUDGE_PROMPT_VERSION } from './prompts.js';
 import { logger } from '../logger.js';
 
@@ -65,7 +65,7 @@ async function parseJson<T>(raw: string): Promise<T | null> {
 
 async function judge(category: string, episode: GeneratedEpisode): Promise<JudgeResult> {
   const { system, user } = buildJudgePrompt(category, JSON.stringify(episode));
-  const raw = await chatCompletion(
+  const raw = await chatWithFallback(
     [
       { role: 'system', content: system },
       { role: 'user', content: user },
@@ -81,7 +81,7 @@ async function judge(category: string, episode: GeneratedEpisode): Promise<Judge
 
 async function generateOnce(category: string, date: string): Promise<GeneratedEpisode | null> {
   const { system, user } = buildGeneratePrompt(category, date);
-  const raw = await chatCompletion(
+  const raw = await chatWithFallback(
     [
       { role: 'system', content: system },
       { role: 'user', content: user },
