@@ -184,7 +184,7 @@ final class GameScene: SKScene {
         addChild(title)
 
         let settings = SettingsStore.shared
-        let badge = makeLabel("Lv.\(settings.level) · 🔥\(settings.streakDays)일 연속 · EXP \(settings.exp)", size: 14, color: palette.brown, font: .body)
+        let badge = makeLabel("Lv.\(settings.level) · 🔥\(settings.streakDays)일 연속 · EXP \(settings.exp)" + (settings.goldenPass ? " · 👑골든패스" : ""), size: 14, color: palette.brown, font: .body)
         badge.position = CGPoint(x: Self.canvasW / 2, y: 610)
         addChild(badge)
 
@@ -619,6 +619,22 @@ final class GameScene: SKScene {
         ]))
     }
 
+    // 5콤보 보너스 배너 — "🔥 5콤보! 보너스 EXP +10"
+    private func spawnComboBanner(_ combo: Int) {
+        let banner = makeLabel("🔥 \(combo)콤보! 보너스 +10 EXP", size: 20, color: SKColor(hex: 0xE8862A))
+        banner.position = CGPoint(x: Self.canvasW / 2, y: 330)
+        banner.zPosition = 51
+        addChild(banner)
+        banner.setScale(0.3)
+        banner.run(.sequence([
+            .scale(to: 1.15, duration: 0.18),
+            .scale(to: 1.0, duration: 0.1),
+            .wait(forDuration: 0.8),
+            .fadeOut(withDuration: 0.35),
+            .removeFromParent(),
+        ]))
+    }
+
     // 오답 화면 흔들림
     private func shakeScreen() {
         run(.sequence([
@@ -793,6 +809,12 @@ final class GameScene: SKScene {
         levelLabel.position = CGPoint(x: Self.canvasW / 2, y: 470)
         addChild(levelLabel)
 
+        if settings.goldenPass {
+            let goldenLabel = makeLabel("👑 골든패스 — 오늘 첫 정답 EXP 2배!", size: 14, color: SKColor(hex: 0xE8862A), font: .body)
+            goldenLabel.position = CGPoint(x: Self.canvasW / 2, y: 435)
+            addChild(goldenLabel)
+        }
+
         let again = makeButton(width: 220, height: 56, color: palette.green, name: "restart")
         again.position = CGPoint(x: Self.canvasW / 2, y: 400)
         addChild(again)
@@ -892,7 +914,11 @@ final class GameScene: SKScene {
         if choice.isCorrect {
             correctCount += 1
             combo += 1
-            let exp = 10 + min((combo - 1) * 2, 10)
+            var exp = 10 + min((combo - 1) * 2, 10)
+            if combo >= 5 {
+                exp += 10
+                spawnComboBanner(combo)
+            }
             totalExp += exp
             DebugLogger.shared.feature("게임", "콤보", meta: ["combo": combo, "exp": exp])
             showResult(correct: true, explanation: explanation, expGained: exp)

@@ -45,7 +45,7 @@ usersRouter.get('/users/me', authMiddleware, async (req, res) => {
   logger.feature('users.me', '완료');
   res.json({
     ok: true,
-    data: { ...u, avatar_url: avatarUrl(u.id), level: Math.floor(Math.sqrt(u.exp / 10)) + 1 },
+    data: { ...u, avatar_url: avatarUrl(u.id), level: Math.floor(Math.sqrt(u.exp / 10)) + 1, golden_pass: u.streak_days >= 7 },
   });
 });
 

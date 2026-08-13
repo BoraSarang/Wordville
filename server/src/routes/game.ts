@@ -205,16 +205,29 @@ gameRouter.post('/answers', authMiddleware, async (req, res) => {
   const choice = choices.find((c) => c.text === selected);
   const isCorrect = choice?.isCorrect === true;
 
-  await pool.query(
-    `INSERT INTO answers (user_id, question_id, is_correct, selected) VALUES ($1, $2, $3, $4)`,
+  const ins = await pool.query(
+    `INSERT INTO answers (user_id, question_id, is_correct, selected) VALUES ($1, $2, $3, $4) RETURNING id`,
     [userId, questionId, isCorrect, selected],
   );
+  const answerId = ins.rows[0].id;
 
   let expGained = 0;
   let newStreak = 0;
+  let goldenPass = false;
 
   if (isCorrect) {
-    expGained = 10 + Math.min((Number(combo) - 1) * 2, 10);
+    // 5콤보 보너스: 10 + 콤보 증분(최대 10) + 5콤보 도달 시 +10
+    const comboNum = Number(combo);
+    expGained = 10 + Math.min((comboNum - 1) * 2, 10) + (comboNum >= 5 ? 10 : 0);
+    // 오늘 첫 정답인지 (방금 기록된 답안 제외)
+    const firstToday = await pool.query(
+      `SELECT NOT EXISTS(
+         SELECT 1 FROM answers
+         WHERE user_id = $1 AND is_correct AND answered_at >= CURRENT_DATE AND id <> $2
+       ) AS first_ok`,
+      [userId, answerId],
+    );
+    const isFirstToday = firstToday.rows[0].first_ok;
     const today = new Date().toISOString().slice(0, 10);
     const u = await pool.query(
       `UPDATE users
@@ -233,6 +246,13 @@ gameRouter.post('/answers', authMiddleware, async (req, res) => {
     await pool.query(`UPDATE users SET league = $1 WHERE id = $2`, [leagueOf(exp), userId]);
     newStreak = u.rows[0].streak_days;
 
+    // 골든패스: 7일 이상 연속 유지 중 + 오늘 첫 정답 → EXP 2배
+    if (isFirstToday && newStreak >= 7) {
+      goldenPass = true;
+      await pool.query(`UPDATE users SET exp = exp + $1 WHERE id = $2`, [expGained, userId]);
+      expGained *= 2;
+    }
+
     // 주간 랭킹 집계
     await pool.query(
       `INSERT INTO weekly_rankings (week_key, user_id, score)
@@ -245,7 +265,7 @@ gameRouter.post('/answers', authMiddleware, async (req, res) => {
     await recordWrongRule(userId, question.rule_key).catch(() => undefined);
   }
 
-  logger.feature('answers.submit', '완료', { isCorrect, expGained, streak: newStreak });
+  logger.feature('answers.submit', '완료', { isCorrect, expGained, streak: newStreak, goldenPass });
   res.json({
     ok: true,
     data: {
@@ -254,6 +274,7 @@ gameRouter.post('/answers', authMiddleware, async (req, res) => {
       explanation: question.explanation,
       exp_gained: expGained,
       streak_days: newStreak,
+      golden_pass: goldenPass,
     },
   });
 });

@@ -26,6 +26,7 @@ final class SettingsStore: ObservableObject {
     var exp: Int { profile?.exp ?? 0 }
     var streakDays: Int { profile?.streak_days ?? 0 }
     var league: String { profile?.league ?? "bronze" }
+    var goldenPass: Bool { (profile?.streak_days ?? 0) >= 7 }
 
     private init() {
         let defaults = UserDefaults.standard

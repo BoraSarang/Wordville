@@ -59,7 +59,7 @@ struct PopoverRootView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(settings.profile?.nickname ?? settings.nickname)
                     .font(.headline)
-                Text("Lv.\(settings.level) · 🔥\(settings.streakDays)일 · EXP \(settings.exp)")
+                Text("Lv.\(settings.level) · 🔥\(settings.streakDays)일 · EXP \(settings.exp)" + (settings.goldenPass ? " · 👑골든패스" : ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
