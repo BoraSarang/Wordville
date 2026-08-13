@@ -33,10 +33,10 @@ gameRouter.get('/episodes', authMiddleware, async (req, res) => {
   const { userId } = req as AuthedRequest;
   logger.feature('episodes.list', '진입', { userId });
   const r = await pool.query(
-    `SELECT e.id, to_char(e.episode_date, 'YYYY-MM-DD') AS episode_date, e.category, e.title,
+    `SELECT e.id, to_char(e.episode_date AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Seoul', 'YYYY-MM-DD') AS episode_date, e.category, e.title,
             EXISTS(SELECT 1 FROM questions q JOIN answers a ON a.question_id = q.id
                    WHERE q.episode_id = e.id AND a.user_id = $1 AND a.is_correct) AS played
-     FROM episodes e ORDER BY e.episode_date DESC LIMIT 30`,
+     FROM episodes e ORDER BY e.episode_date DESC LIMIT 60`,
     [userId],
   );
   logger.feature('episodes.list', '완료', { count: r.rowCount });
