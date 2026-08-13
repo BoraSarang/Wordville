@@ -39,6 +39,9 @@ struct PopoverRootView: View {
             case .ranking: menuBar.setPopoverHeight(500)
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .openRankingRequest)) { _ in
+            screen = .ranking
+        }
         .task { await settings.refreshProfile() }
     }
 

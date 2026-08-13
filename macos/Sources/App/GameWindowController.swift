@@ -44,4 +44,5 @@ final class GameWindowController: NSObject {
 extension Notification.Name {
     static let toggleDebugPanel = Notification.Name("toggleDebugPanel")
     static let quickPlayRequest = Notification.Name("quickPlayRequest")
+    static let openRankingRequest = Notification.Name("openRankingRequest")
 }

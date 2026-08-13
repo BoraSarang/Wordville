@@ -187,6 +187,7 @@ final class GameScene: SKScene {
         makeMenuButton(name: "quickplay", color: palette.sky, title: "퀵플레이", subtitle: "1문제 · 틀린 유형 우선 출제", y: 450)
         makeMenuButton(name: "archive", color: palette.peach, title: "과거 에피소드", subtitle: "지난 스토리 다시 보기 (22개)", y: 360)
         makeMenuButton(name: "review", color: SKColor(hex: 0xB8A88A), title: "오답 복습", subtitle: "몬스터 사냥 · 틀린 유형만", y: 270)
+        makeMenuButton(name: "ranking", color: SKColor(hex: 0xF4C542), title: "주간 랭킹", subtitle: "리그 순위 확인 · Top 50", y: 180)
         DebugLogger.shared.feature("게임", "선택 화면 표시됨")
     }
 
@@ -203,6 +204,12 @@ final class GameScene: SKScene {
     }
 
     // MARK: - ARCHIVE (과거 에피소드 목록)
+
+    // 주간 랭킹 팝오버 열기 (게임 창 → 메뉴바 팝오버)
+    private func openRanking() {
+        DebugLogger.shared.feature("게임", "랭킹 열기 요청")
+        NotificationCenter.default.post(name: .openRankingRequest, object: nil)
+    }
 
     private func loadArchive() async {
         do {
@@ -735,6 +742,7 @@ final class GameScene: SKScene {
             case "quickplay": handleQuickPlayRequest()
             case "archive": Task { await loadArchive() }
             case "review": loadReview()
+            case "ranking": openRanking()
             default: break
             }
         case .archive:
