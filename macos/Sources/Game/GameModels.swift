@@ -21,6 +21,7 @@ struct Question: Codable {
     let scene_index: Int
     let narrative: String
     let choices: [Choice]
+    let explanation: String? = nil
 }
 
 struct Choice: Codable {
@@ -39,10 +40,27 @@ struct AnswerResult: Codable {
 struct APIResponse<T: Codable>: Codable {
     let ok: Bool
     let data: T?
-    let error: APIError?
+    let error: APIErrorBody?
 }
 
-struct APIError: Codable {
+struct APIErrorBody: Codable {
     let code: String
     let message: String
+}
+
+struct AuthUser: Codable {
+    let id: String
+    let nickname: String
+    let avatar_url: String?
+}
+
+struct AuthResponse: Codable {
+    let token: String
+    let refresh_token: String?
+    let user: AuthUser
+}
+
+struct QuestionsResponse: Codable {
+    let episode_id: Int
+    let questions: [Question]
 }

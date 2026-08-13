@@ -42,7 +42,8 @@ gameRouter.get('/episodes/today', authMiddleware, async (_req, res) => {
     return;
   }
   logger.feature('episodes.today', '완료', { episodeId: r.rows[0].id });
-  res.json({ ok: true, data: r.rows[0] });
+  const episode = r.rows[0];
+  res.json({ ok: true, data: { ...episode, id: Number(episode.id) } });
 });
 
 // GET /episodes/:id/questions — 에피소드 문제 목록
@@ -50,7 +51,7 @@ gameRouter.get('/episodes/:id/questions', authMiddleware, async (req, res) => {
   const episodeId = req.params.id;
   logger.feature('episodes.questions', '진입', { episodeId });
   const r = await pool.query(
-    `SELECT id, scene_index, narrative, choices FROM questions
+    `SELECT id, scene_index, narrative, choices, explanation FROM questions
      WHERE episode_id = $1 ORDER BY scene_index`,
     [episodeId],
   );
@@ -59,7 +60,10 @@ gameRouter.get('/episodes/:id/questions', authMiddleware, async (req, res) => {
     return;
   }
   logger.feature('episodes.questions', '완료', { count: r.rowCount });
-  res.json({ ok: true, data: { episode_id: Number(episodeId), questions: r.rows } });
+  res.json({
+    ok: true,
+    data: { episode_id: Number(episodeId), questions: r.rows.map((q: any) => ({ ...q, id: Number(q.id) })) },
+  });
 });
 
 // POST /answers — 답안 제출 + 채점 + EXP/스트릭/오답 기록

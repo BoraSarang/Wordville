@@ -16,6 +16,8 @@ final class GameScene: SKScene {
     private var questions: [Question] = []
     private var correctCount = 0
     private var totalExp = 0
+    private var combo = 0
+    private var episodeTitle = ""
 
     // 노드
     private var dialogLabel: SKLabelNode!
@@ -43,9 +45,35 @@ final class GameScene: SKScene {
         backgroundColor = palette.cream
         size = CGSize(width: Self.canvasW, height: Self.canvasH)
         questions = GameData.demoQuestions
+        episodeTitle = GameData.demoEpisode.title
         buildBackground()
         showTitle()
         DebugLogger.shared.feature("게임", "씬 로드 — title", meta: ["questions": questions.count])
+        Task { await loadRemoteEpisode() }
+    }
+
+    // MARK: - 서버 연동
+
+    private func loadRemoteEpisode() async {
+        do {
+            _ = try await APIClient.shared.ensureAuth()
+            let episode = try await APIClient.shared.fetchTodayEpisode()
+            let remoteQuestions = try await APIClient.shared.fetchQuestions(episodeId: episode.id)
+            await MainActor.run {
+                questions = remoteQuestions
+                episodeTitle = episode.title
+                correctCount = 0
+                totalExp = 0
+                combo = 0
+                DebugLogger.shared.feature("게임", "서버 에피소드 로드됨", meta: ["title": episode.title, "questions": remoteQuestions.count])
+                if state == .title {
+                    clearLayers()
+                    showTitle()
+                }
+            }
+        } catch {
+            DebugLogger.shared.log(.warn, "게임", "서버 로드 실패 — 데모 데이터 사용", meta: ["error": String(describing: error)])
+        }
     }
 
     // MARK: - 배경
@@ -102,7 +130,7 @@ final class GameScene: SKScene {
         title.position = CGPoint(x: Self.canvasW / 2, y: 620)
         addChild(title)
 
-        let sub = makeLabel("오늘의 에피소드: \(GameData.demoEpisode.title)", size: 16, color: palette.brown)
+        let sub = makeLabel("오늘의 에피소드: \(episodeTitle)", size: 16, color: palette.brown)
         sub.position = CGPoint(x: Self.canvasW / 2, y: 560)
         addChild(sub)
 
@@ -401,6 +429,7 @@ final class GameScene: SKScene {
             if name == "restart" {
                 correctCount = 0
                 totalExp = 0
+                combo = 0
                 showTitle()
             }
         }
@@ -408,13 +437,29 @@ final class GameScene: SKScene {
 
     private func handleAnswer(_ index: Int, question: Question) {
         guard let choice = question.choices[safe: index] else { return }
+        let explanation = question.explanation ?? question.narrative
         if choice.isCorrect {
             correctCount += 1
-            let exp = 10
+            combo += 1
+            let exp = 10 + min((combo - 1) * 2, 10)
             totalExp += exp
-            showResult(correct: true, explanation: question.narrative, expGained: exp)
+            DebugLogger.shared.feature("게임", "콤보", meta: ["combo": combo, "exp": exp])
+            showResult(correct: true, explanation: explanation, expGained: exp)
         } else {
-            showResult(correct: false, explanation: question.narrative, expGained: 0)
+            combo = 0
+            showResult(correct: false, explanation: explanation, expGained: 0)
+        }
+        Task {
+            do {
+                _ = try await APIClient.shared.submitAnswer(
+                    questionId: question.id,
+                    selected: choice.text,
+                    combo: max(combo, 1)
+                )
+            } catch {
+                DebugLogger.shared.log(.warn, "게임", "답안 제출 실패 — 오프라인 큐", meta: ["error": String(describing: error)])
+                APIClient.shared.enqueueAnswer(questionId: question.id, selected: choice.text, combo: max(combo, 1))
+            }
         }
     }
 
