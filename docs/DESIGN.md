@@ -14,11 +14,14 @@
 
 ### 1.2 게임 상태 머신 (양 플랫폼 공통 로직)
 ```
-BOOT → TITLE → EPISODE_SELECT → SCENE(지문 타이핑) → QUESTION(문제 패널)
-     → RESULT_CORRECT(축하+EXP) → SCENE(다음 장면) / EPISODE_CLEAR
+BOOT → SPLASH(1.2s) → SELECTION(게임 선택 화면)
+     → EPISODE(오늘/아카이브/복습) → SCENE(지문 타이핑) → QUESTION(문제 패널)
+     → RESULT_CORRECT(축하+EXP+콤보) → SCENE(다음 장면) / EPISODE_CLEAR → SELECTION
      → RESULT_WRONG(몬스터+재도전) → QUESTION(같은 문제)
+     → ARCHIVE(과거 에피소드 목록, 페이지 6개) / RANKING(주간 랭킹 Top 10+내 순위)
      → (오프라인 시) QUEUE 저장 → 온라인 복구 시 FLUSH
 ```
+- SELECTION 메뉴: 오늘의 에피소드 / 퀵플레이 / 과거 에피소드 / 오답 복습 / 주간 랭킹
 - 디버그 로그: 각 전이 시 `[INFO] [FEATURE] <상태> 진입/완료` 필수 (AGENTS.md 19.1)
 
 ### 1.3 API 규약 (REST)
@@ -26,10 +29,13 @@ BOOT → TITLE → EPISODE_SELECT → SCENE(지문 타이핑) → QUESTION(문�
 |-----------|--------|------|
 | /health | GET | 헬스체크 |
 | /auth/anon | POST | 익명 UUID 발급 |
-| /users/me | GET/PATCH | 프로필(닉네임, 아바타) |
+| /users/me | GET/PATCH | 프로필(닉네임, 아바타, golden_pass 파생) |
+| /episodes | GET | 에피소드 목록 (KST 날짜, played 포함) |
 | /episodes/today | GET | 오늘의 에피소드 (문제 미포함) |
 | /episodes/:id/questions | GET | 에피소드 문제 목록 |
-| /answers | POST | 답안 제출 + 채점 (EXP/콤보/오답 기록) |
+| /episodes/quick | GET | 퀵플레이 1문제 (틀린 유형 우선) |
+| /episodes/review | GET | 오답 복습 5문제 (오답 rule_key 우선) |
+| /answers | POST | 답안 제출 + 채점 (EXP/콤보/골든패스/오답 기록) |
 | /users/me/stats | GET | EXP/레벨/스트릭/오답 유형 |
 | /rankings/weekly | GET | 주간 랭킹 + 리그 |
 | /debug/logs, /debug/cache, /debug/queue | GET | 디버그 패널 (DEBUG 모드만) |
@@ -142,10 +148,11 @@ CREATE TABLE weekly_rankings (
 4. 난이도: 레벨 기반 (EXP에 비례)
 
 ### 2.5 채점/EXP
-- 정답: +10 × 콤보 배율 (연속 정답 시 ×2, ×3...)
-- 오답: EXP 없음 + wrong_embeddings upsert
+- 정답 EXP 공식: `10 + min((combo-1) × 2, 10)` + **5콤보 보너스 +10** (`combo ≥ 5`)
+- 골든패스: `streak_days ≥ 7` 상태에서 **오늘 첫 정답**이면 EXP 2배 (`golden_pass=true`, 답안 응답에 포함)
+- 오답: EXP 없음 + wrong_embeddings upsert (Gemini 임베딩 384차원)
 - 스트릭: 오늘 1문제 이상 정답 시 +1, 놓치면 리셋
-- 리그: 주간 점수 → 상위 20% 승급, 하위 20% 강등
+- 리그: leagueOf(exp) — exp 임계값 기반 브론즈~다이아 (설계상 승/강등 규칙은 exp 방식으로 단순화)
 
 ### 2.6 디버그 패널 (Server)
 - /debug/logs: 구조화 JSON 로그 (최근 500줄)
@@ -157,14 +164,18 @@ CREATE TABLE weekly_rankings (
 ## 3. macOS 앱 (Swift + SpriteKit)
 
 ### 3.1 앱 형태
-- 일반 윈도우 앱 (Dock 아이콘 표시, `.regular`): 360×780 고정 게임 윈도우
-  - 실행 시 바로 게임 타이틀 화면 (에피소드 시작), 상단 오버레이: 설정/닫기 버튼
-  - Android 풀스크린(360×780dp)과 동일 캔버스/상태 머신
-- 설정 창 (SwiftUI): 닉네임, 알림 토글, 서버 주소 (게임 위 오버레이 → 시트)
+- 메뉴바 아이콘(NSStatusItem) + 게임 윈도우 하이브리드 (Dock 표시 여부는 설정 토글)
+- 실행 시 스플래시(1.2s) → 게임 선택 화면 (에피소드 자동 시작 없음), 360×780 고정
+- Android 풀스크린(360×780dp)과 동일 캔버스/상태 머신
+- 중복 실행 방지: NSRunningApplication 번들 ID 체크 (두 번째 인스턴스 종료)
+- 설정 창 (SwiftUI): 닉네임, 알림 토글, 서버 주소
 
 ### 3.2 화면 구성
-- SpriteKit `SKView` 360×780 고정 윈도우 (일반 앱 창, 타이틀 "글마을 달인")
-- GameScene: 타일 맵 + 캐릭터 + 대화창 + 문제 패널 (상태 머신 1.2)
+- SpriteKit `SKView` 360×780 고정 윈도우 (타이틀 "글마을 달인", 앱 아이콘 AppIcon.icns)
+- GameScene 상태: splash/selection/archive/ranking/scene/question/resultCorrect/resultWrong/clear
+- SELECTION: 메뉴 버튼 5종 (오늘/퀵/아카이브/복습/랭킹) + Lv·스트릭 배지
+- ARCHIVE: 페이지당 6개 목록 (날짜 m/d + 제목 + ✅), ▲▼ 페이지 이동, 다시 도전
+- RANKING: Top 10 + 내 순위 배너 (순위/이름/점수만 — 리그 배지 없음)
 - DebugPanel: Cmd+Shift+D → 로그 오버레이
 
 ### 3.3 네트워크/저장

@@ -50,6 +50,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         false
     }
 
+    // Dock 아이콘 클릭 시 게임 윈도우 다시 표시
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        DebugLogger.shared.feature("앱", "Dock 클릭 — 게임 윈도우 표시")
+        gameWindow.show()
+        return false
+    }
+
     // 오프라인 큐 자동 flush: 시작 시 + 온라인 복구 시 (DESIGN 1.2 FLUSH)
     private func startOfflineQueueSync() {
         Task {
