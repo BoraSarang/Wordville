@@ -15,7 +15,8 @@ class SettingsStore(context: Context) {
         set(value) = prefs.edit().putString("nickname", value).apply()
 
     var serverBaseURL: String
-        get() = prefs.getString("serverBaseURL", "http://10.0.2.2:3000")!!
+        // Genymotion: 호스트 = 10.0.3.2 / AVD: 10.0.2.2 — Settings에서 변경 가능
+        get() = prefs.getString("serverBaseURL", "http://10.0.3.2:3000")!!
         set(value) = prefs.edit().putString("serverBaseURL", value).apply()
 
     var token: String

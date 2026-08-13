@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="글마을 달인"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme"
         android:allowBackup="true">
         <activity

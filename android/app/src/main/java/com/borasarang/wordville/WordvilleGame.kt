@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 
 enum class GameState { SPLASH, SELECTION, ARCHIVE, RANKING, SCENE, QUESTION, RESULT_CORRECT, RESULT_WRONG, CLEAR }
 
-class WordvilleGame : Game() {
+class WordvilleGame : Game(), com.badlogic.gdx.InputProcessor {
     companion object {
         const val CANVAS_W = 360f
         const val CANVAS_H = 780f
@@ -79,6 +79,7 @@ class WordvilleGame : Game() {
             setColor(Color.WHITE); fill()
         })
         Gdx.input.setCatchKey(com.badlogic.gdx.Input.Keys.BACK, true)
+        Gdx.input.setInputProcessor(this)
 
         DebugLogger.feature("게임", "씬 로드 — splash")
         showSplash()
@@ -543,6 +544,36 @@ class WordvilleGame : Game() {
     }
 
     // MARK: - 입력
+
+    // MARK: - 입력 (InputProcessor)
+
+    private val touchPoint = Vector2()
+
+    override fun keyDown(keycode: Int): Boolean {
+        if (keycode == com.badlogic.gdx.Input.Keys.BACK) {
+            if (state == GameState.SELECTION) {
+                Gdx.app.exit()
+            } else {
+                showSelection()
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean = false
+    override fun keyTyped(character: Char): Boolean = false
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        val pos = viewport.unproject(touchPoint.set(screenX.toFloat(), screenY.toFloat()))
+        handleTap(pos.x, pos.y)
+        return true
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
+    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean = false
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean = false
+    override fun scrolled(amountX: Float, amountY: Float): Boolean = false
 
     private fun handleTap(gx: Float, gy: Float) {
         val hit = boxes.asSequence()

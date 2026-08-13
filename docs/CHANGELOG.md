@@ -1,6 +1,14 @@
 # CHANGELOG — Wordville
 
-## [v0.3.0] — 2026-08-13 (게임화 보너스 — 5콤보 + 골든패스)
+## [v0.3.0] — 2026-08-13 (게임화 보너스 + Android 포팅)
+
+### Added [android]
+- libGDX 포팅 골격: 상태 머신 9종 (splash/selection/archive/ranking/scene/question/result/clear) 1:1 이식
+- FitViewport(360×780) y-up 카메라 + 갈무리11/둥근모꼴 FreeType 폰트 + 코드 도형 캐릭터/몬스터
+- API 클라이언트 (OkHttp + kotlinx.serialization): auth/episodes/quick/review/rankings/answers + 오프라인 큐(SharedPreferences JSON)
+- 터치 입력 (InputProcessor), 뒤로가기 → 선택 화면, Genymotion 호스트 주소(10.0.3.2)
+- 네이티브: gdx-platform/gdx-freetype-platform natives → jniLibs 자동 추출 (arm64/armv7/x86/x86_64)
+- Genymotion 실기 검증: 선택/에피소드/문제/결과/복습/랭킹(myRank=3)/아카이브(22개)/퀵플레이 전 화면 동작 확인, EXP 콤보 공식 (10/12) 정확
 
 ### Added [macos]
 - 5콤보 보너스: "🔥 5콤보! 보너스 +10 EXP" 배너 (스케일 팝 애니메이션)
