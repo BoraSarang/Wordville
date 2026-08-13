@@ -1,0 +1,346 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D1C575B4AA0FCFB31440340 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */; };
+		1FC9D1EC502C1A3DA26B2E34 /* DebugPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */; };
+		51EDA887FE66AA86E7058647 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E445134237B1DF04E55A8E /* SettingsView.swift */; };
+		7CA79B1625117AE45D709B5B /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A663BEA256FA7E8D109A2D14 /* DebugLogger.swift */; };
+		9FC360FBC422A8DAF27F9A4C /* WordvilleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19078E143C4C812EF143F465 /* WordvilleApp.swift */; };
+		D36BD5BCD1309B6E1A585F13 /* PopoverRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8C159059158364B501DA29 /* PopoverRootView.swift */; };
+		F5971039CE02D853DEC09FED /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DB76976F6CDE84193415CE /* MenuBarController.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		06DB76976F6CDE84193415CE /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		19078E143C4C812EF143F465 /* WordvilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordvilleApp.swift; sourceTree = "<group>"; };
+		7272C377AA8F2AC054907B9E /* Wordville.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wordville.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A8C159059158364B501DA29 /* PopoverRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverRootView.swift; sourceTree = "<group>"; };
+		A663BEA256FA7E8D109A2D14 /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugPanelView.swift; sourceTree = "<group>"; };
+		E0E445134237B1DF04E55A8E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		31183830F2F6E7D3F1C9882C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9A8C159059158364B501DA29 /* PopoverRootView.swift */,
+				E0E445134237B1DF04E55A8E /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		59ED3F6FC3F7D6A16583332C /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				A663BEA256FA7E8D109A2D14 /* DebugLogger.swift */,
+				AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
+		648494F5C36B8B7775DDDD67 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				F5B90D70B1CE1E273BDEEBFF /* App */,
+				59ED3F6FC3F7D6A16583332C /* Debug */,
+				31183830F2F6E7D3F1C9882C /* Views */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		92BDA703A96C1F4AFEE6B194 = {
+			isa = PBXGroup;
+			children = (
+				648494F5C36B8B7775DDDD67 /* Sources */,
+				EB9EBDE750C37B4A841497C2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		EB9EBDE750C37B4A841497C2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7272C377AA8F2AC054907B9E /* Wordville.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F5B90D70B1CE1E273BDEEBFF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				06DB76976F6CDE84193415CE /* MenuBarController.swift */,
+				05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */,
+				19078E143C4C812EF143F465 /* WordvilleApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E912890BEF78FBEC59C727E5 /* Wordville */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 918DDC03AC5CCABB236FEC30 /* Build configuration list for PBXNativeTarget "Wordville" */;
+			buildPhases = (
+				B319E89A0E1F06C36FE1CA13 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Wordville;
+			packageProductDependencies = (
+			);
+			productName = Wordville;
+			productReference = 7272C377AA8F2AC054907B9E /* Wordville.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9D78282A3D34983CA1B5DBD5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = B0445930D89A4D53E1CBDABF /* Build configuration list for PBXProject "Wordville" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 92BDA703A96C1F4AFEE6B194;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = EB9EBDE750C37B4A841497C2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E912890BEF78FBEC59C727E5 /* Wordville */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B319E89A0E1F06C36FE1CA13 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7CA79B1625117AE45D709B5B /* DebugLogger.swift in Sources */,
+				1FC9D1EC502C1A3DA26B2E34 /* DebugPanelView.swift in Sources */,
+				F5971039CE02D853DEC09FED /* MenuBarController.swift in Sources */,
+				D36BD5BCD1309B6E1A585F13 /* PopoverRootView.swift in Sources */,
+				1D1C575B4AA0FCFB31440340 /* SettingsStore.swift in Sources */,
+				51EDA887FE66AA86E7058647 /* SettingsView.swift in Sources */,
+				9FC360FBC422A8DAF27F9A4C /* WordvilleApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		323F563126EFEFAF6DC6C0EA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.borasarang.wordville;
+				PRODUCT_NAME = Wordville;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+			};
+			name = Release;
+		};
+		5602FF4CC63ADF99630F949B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.borasarang.wordville;
+				PRODUCT_NAME = Wordville;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+			};
+			name = Debug;
+		};
+		A7F03588EAF01EA3117D06CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DB1FA1B5860C4C5785662ABA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		918DDC03AC5CCABB236FEC30 /* Build configuration list for PBXNativeTarget "Wordville" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5602FF4CC63ADF99630F949B /* Debug */,
+				323F563126EFEFAF6DC6C0EA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B0445930D89A4D53E1CBDABF /* Build configuration list for PBXProject "Wordville" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB1FA1B5860C4C5785662ABA /* Debug */,
+				A7F03588EAF01EA3117D06CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9D78282A3D34983CA1B5DBD5 /* Project object */;
+}
