@@ -104,6 +104,11 @@ class WordvilleGame : Game(), com.badlogic.gdx.InputProcessor {
             val param = FreeTypeFontGenerator.FreeTypeFontParameter().apply {
                 this.size = size
                 color = Color.WHITE
+                // 한글 전체(U+AC00~U+D7A3) + 특수기호 — DEFAULT_CHARS는 ASCII+라틴뿐이라 필수
+                val symbols = "·★☆✓▲▼▸…X?!…—·’‘“”[]()"
+                val korean = StringBuilder()
+                for (c in 0xAC00..0xD7A3) korean.append(c.toChar())
+                characters = FreeTypeFontGenerator.DEFAULT_CHARS + korean.toString() + symbols
             }
             gen.generateFont(param).apply { gen.dispose() }
         }
@@ -169,7 +174,7 @@ class WordvilleGame : Game(), com.badlogic.gdx.InputProcessor {
         clearWidgets()
         buildBackground()
         label("", "글마을 달인", 30, FontKind.UI, Palette.brown, CANVAS_W / 2, 660f)
-        val badgeText = "Lv.${store.level} · 🔥${store.streakDays}일 연속 · EXP ${store.exp}" + (if (store.goldenPass) " · ★골든패스" else "")
+        val badgeText = "Lv.${store.level} · ★${store.streakDays}일 연속 · EXP ${store.exp}" + (if (store.goldenPass) " · ★골든패스" else "")
         label("", badgeText, 14, FontKind.BODY, Palette.brown, CANVAS_W / 2, 610f)
         makeMenuButton("episode_today", Palette.green, "오늘의 에피소드", "오늘의 스토리 5문제 · EXP + 스트릭", 540f)
         makeMenuButton("quickplay", Palette.sky, "퀵플레이", "1문제 · 틀린 유형 우선 출제", 450f)
@@ -177,6 +182,8 @@ class WordvilleGame : Game(), com.badlogic.gdx.InputProcessor {
         makeMenuButton("review", Palette.tan, "오답 복습", "몬스터 사냥 · 틀린 유형만", 270f)
         makeMenuButton("ranking", Palette.gold, "주간 랭킹", "리그 순위 확인", 180f)
         DebugLogger.feature("게임", "선택 화면 표시됨")
+        val probe = GlyphLayout(font(FontKind.BODY, 16), "가나다")
+        DebugLogger.log("INFO", "폰트", "한글 glyph width=" + probe.width + " pages=" + font(FontKind.BODY, 16).regions.size)
     }
 
     // MARK: - RANKING
