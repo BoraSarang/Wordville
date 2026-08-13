@@ -24,7 +24,13 @@ final class GameWindowController: NSObject {
         )
         window.title = "글마을 달인"
         window.contentViewController = NSHostingController(rootView: GameRootView().environmentObject(settings))
-        window.center()
+        if let screen = NSScreen.main {
+            let x = (screen.visibleFrame.midX - window.frame.width / 2).rounded()
+            let y = screen.visibleFrame.maxY - window.frame.height - 40
+            window.setFrameOrigin(NSPoint(x: x, y: y))
+        } else {
+            window.center()
+        }
         window.makeKeyAndOrderFront(nil)
         self.window = window
         DebugLogger.shared.feature("게임윈도우", "표시됨", meta: ["w": Int(GameScene.canvasW), "h": Int(GameScene.canvasH)])
@@ -37,4 +43,5 @@ final class GameWindowController: NSObject {
 
 extension Notification.Name {
     static let toggleDebugPanel = Notification.Name("toggleDebugPanel")
+    static let quickPlayRequest = Notification.Name("quickPlayRequest")
 }

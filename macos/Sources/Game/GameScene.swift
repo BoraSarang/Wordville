@@ -18,6 +18,7 @@ final class GameScene: SKScene {
     private var totalExp = 0
     private var combo = 0
     private var episodeTitle = ""
+    private var quickPlay = false
 
     // 노드
     private var dialogLabel: SKLabelNode!
@@ -49,7 +50,33 @@ final class GameScene: SKScene {
         buildBackground()
         showTitle()
         DebugLogger.shared.feature("게임", "씬 로드 — title", meta: ["questions": questions.count])
+        NotificationCenter.default.addObserver(self, selector: #selector(handleQuickPlayRequest), name: .quickPlayRequest, object: nil)
         Task { await loadRemoteEpisode() }
+        Task { await SettingsStore.shared.refreshProfile() }
+    }
+
+    @objc private func handleQuickPlayRequest() {
+        DebugLogger.shared.feature("게임", "퀵플레이 요청 수신")
+        Task {
+            do {
+                _ = try await APIClient.shared.ensureAuth()
+                let q = try await APIClient.shared.fetchQuickQuestion()
+                await MainActor.run { startQuickPlay(q) }
+            } catch {
+                DebugLogger.shared.log(.warn, "게임", "퀵플레이 문제 로드 실패", meta: ["error": String(describing: error)])
+            }
+        }
+    }
+
+    private func startQuickPlay(_ q: QuickQuestion) {
+        quickPlay = true
+        questions = [Question(id: q.id, scene_index: 0, narrative: q.narrative, choices: q.choices, explanation: q.explanation)]
+        sceneIndex = 0
+        correctCount = 0
+        totalExp = 0
+        combo = 0
+        DebugLogger.shared.feature("게임", "퀵플레이 시작", meta: ["qid": q.id, "title": q.episode_title ?? ""])
+        showQuestion()
     }
 
     // MARK: - 서버 연동
@@ -146,6 +173,11 @@ final class GameScene: SKScene {
         sub.position = CGPoint(x: Self.canvasW / 2, y: 560)
         addChild(sub)
 
+        let settings = SettingsStore.shared
+        let badge = makeLabel("Lv.\(settings.level) · 🔥\(settings.streakDays)일 연속 · EXP \(settings.exp)", size: 14, color: palette.brown, font: .body)
+        badge.position = CGPoint(x: Self.canvasW / 2, y: 505)
+        addChild(badge)
+
         let start = makeButton(width: 220, height: 64, color: palette.green, name: "start")
         start.position = CGPoint(x: Self.canvasW / 2, y: 440)
         addChild(start)
@@ -176,8 +208,8 @@ final class GameScene: SKScene {
         let question = questions[index]
         clearLayers()
 
-        // 캐릭터 (복숭아 픽셀풍, 화면 중앙 — 크게)
-        characterNode = makeCharacter()
+        // 캐릭터 (Kenney 스프라이트 우선, 폴백 도형 — 화면 중앙, 크게)
+        characterNode = makeCharacterSprite() ?? makeCharacter()
         characterNode.setScale(1.4)
         characterNode.position = CGPoint(x: Self.canvasW / 2, y: 470)
         addChild(characterNode)
@@ -233,6 +265,108 @@ final class GameScene: SKScene {
         mouth.position = CGPoint(x: 12, y: 8)
         node.addChild(mouth)
         return node
+    }
+
+    // Kenney Roguelike 캐릭터 스프라이트 (CC0) — 시트: roguelikeChar_transparent.png 54x12셀 (16x16+1px)
+    private func makeCharacterSprite() -> SKNode? {
+        let tex = SKTexture(imageNamed: "roguelikeChar_transparent")
+        guard tex.size() != .zero else { return nil }
+        let node = SKNode()
+        // row 0, col 0 — 정면 캐릭터 (살색 풀바디). uv y는 아래서 위로
+        let rect = cellRect(sheet: tex, row: 0, col: 0)
+        let sub = SKTexture(rect: rect, in: tex)
+        let sprite = SKSpriteNode(texture: sub, size: CGSize(width: 96, height: 96))
+        node.addChild(sprite)
+        // idle 바운스
+        sprite.run(.repeatForever(.sequence([
+            .moveBy(x: 0, y: 5, duration: 0.4),
+            .moveBy(x: 0, y: -5, duration: 0.4),
+        ])))
+        return node
+    }
+
+    // Kenney 몬스터 스프라이트 — row 10, col 1
+    private func makeMonsterSprite() -> SKNode? {
+        let tex = SKTexture(imageNamed: "roguelikeChar_transparent")
+        guard tex.size() != .zero else { return nil }
+        let rect = cellRect(sheet: tex, row: 10, col: 1)
+        let sub = SKTexture(rect: rect, in: tex)
+        let node = SKSpriteNode(texture: sub, size: CGSize(width: 96, height: 96))
+        node.setScale(0.6)
+        node.run(.repeatForever(.sequence([
+            .moveBy(x: 0, y: 6, duration: 0.3),
+            .moveBy(x: 0, y: -6, duration: 0.3),
+        ])))
+        return node
+    }
+
+    // 시트 셀 → uv rect 변환 (타일 16px, 마진 1px)
+    private func cellRect(sheet: SKTexture, row: Int, col: Int) -> CGRect {
+        let w = sheet.size().width
+        let h = sheet.size().height
+        let tile: CGFloat = 16
+        let margin: CGFloat = 1
+        let x = CGFloat(col) * (tile + margin) / w
+        let y = (h - (tile + margin) * CGFloat(row + 1)) / h
+        return CGRect(x: x, y: y, width: tile / w, height: tile / h)
+    }
+
+    // 오답 몬스터 (도형 기반 — 비주얼 v0.2)
+    private func makeMonster() -> SKNode {
+        let node = SKNode()
+        let body = SKSpriteNode(color: SKColor(hex: 0x7B5E7B), size: CGSize(width: 84, height: 80))
+        body.position = CGPoint(x: 0, y: 0)
+        node.addChild(body)
+        let eyeL = SKSpriteNode(color: .white, size: CGSize(width: 18, height: 18))
+        eyeL.position = CGPoint(x: -14, y: 20)
+        node.addChild(eyeL)
+        let eyeR = SKSpriteNode(color: .white, size: CGSize(width: 18, height: 18))
+        eyeR.position = CGPoint(x: 14, y: 20)
+        node.addChild(eyeR)
+        let pupilL = SKSpriteNode(color: SKColor(hex: 0xE53935), size: CGSize(width: 8, height: 8))
+        pupilL.position = CGPoint(x: -14, y: 20)
+        node.addChild(pupilL)
+        let pupilR = SKSpriteNode(color: SKColor(hex: 0xE53935), size: CGSize(width: 8, height: 8))
+        pupilR.position = CGPoint(x: 14, y: 20)
+        node.addChild(pupilR)
+        let fangL = SKSpriteNode(color: .white, size: CGSize(width: 8, height: 12))
+        fangL.position = CGPoint(x: -8, y: -28)
+        node.addChild(fangL)
+        let fangR = SKSpriteNode(color: .white, size: CGSize(width: 8, height: 12))
+        fangR.position = CGPoint(x: 8, y: -28)
+        node.addChild(fangR)
+        node.setScale(0.4)
+        node.run(.sequence([.scale(to: 1.0, duration: 0.25), .repeatForever(.sequence([
+            .moveBy(x: 0, y: 6, duration: 0.3),
+            .moveBy(x: 0, y: -6, duration: 0.3),
+        ]))]))
+        return node
+    }
+
+    // 정답 EXP 팝업 — 캐릭터 머리 위로 떠오르며 사라짐
+    private func spawnExpPopup(_ exp: Int) {
+        let popup = makeLabel("+\(exp) EXP", size: 22, color: palette.green)
+        popup.position = CGPoint(x: Self.canvasW / 2, y: 270)
+        popup.zPosition = 50
+        addChild(popup)
+        popup.run(.sequence([
+            .group([
+                .moveBy(x: 0, y: 60, duration: 0.7),
+                .fadeOut(withDuration: 0.7),
+            ]),
+            .removeFromParent(),
+        ]))
+    }
+
+    // 오답 화면 흔들림
+    private func shakeScreen() {
+        run(.sequence([
+            .moveBy(x: -8, y: 0, duration: 0.05),
+            .moveBy(x: 14, y: 0, duration: 0.05),
+            .moveBy(x: -10, y: 0, duration: 0.05),
+            .moveBy(x: 6, y: 0, duration: 0.05),
+            .moveBy(x: -2, y: 0, duration: 0.05),
+        ]))
     }
 
     private func startTyping(_ text: String) {
@@ -310,8 +444,9 @@ final class GameScene: SKScene {
             addChild(choiceLabel)
         }
 
-        // 캐릭터 (문제 화면 하단)
-        let char = makeCharacter()
+        // 캐릭터 (문제 화면 하단 — 스프라이트 우선)
+        let char = makeCharacterSprite() ?? makeCharacter()
+        char.setScale(0.7)
         char.position = CGPoint(x: Self.canvasW / 2, y: 85)
         addChild(char)
     }
@@ -351,13 +486,23 @@ final class GameScene: SKScene {
         explLabel.position = CGPoint(x: Self.canvasW / 2, y: 435)
         addChild(explLabel)
 
-        // 캐릭터 (기쁨/슬픔)
-        let char = makeCharacter()
+        // 캐릭터 (스프라이트 우선, 폴백 도형)
+        let char = makeCharacterSprite() ?? makeCharacter()
         char.position = CGPoint(x: Self.canvasW / 2, y: 170)
         addChild(char)
         let mood = makeLabel(correct ? "🎉" : "😢", size: 30, color: .black, font: .emoji)
         mood.position = CGPoint(x: Self.canvasW / 2, y: 265)
         addChild(mood)
+
+        // 비주얼 v0.2: 정답 EXP 팝업 / 오답 몬스터 + 화면 흔들림
+        if correct {
+            spawnExpPopup(expGained)
+        } else {
+            shakeScreen()
+            let monster = makeMonsterSprite() ?? makeMonster()
+            monster.position = CGPoint(x: Self.canvasW / 2 + 60, y: 170)
+            addChild(monster)
+        }
 
         let actionLabel = makeLabel(correct ? "다음 장면으로 →" : "같은 문제 다시 풀기", size: 18, color: palette.brown, font: .body)
         let next = makeButton(width: 240, height: 56, color: palette.sky, name: correct ? "next_scene" : "retry")
@@ -381,6 +526,11 @@ final class GameScene: SKScene {
         let stats = makeLabel("\(correctCount)문제 정답 · EXP +\(totalExp)", size: 18, color: .black, font: .body)
         stats.position = CGPoint(x: Self.canvasW / 2, y: 520)
         addChild(stats)
+
+        let settings = SettingsStore.shared
+        let levelLabel = makeLabel("현재 Lv.\(settings.level) · 리그: \(leagueName(settings.league))", size: 14, color: palette.brown, font: .body)
+        levelLabel.position = CGPoint(x: Self.canvasW / 2, y: 470)
+        addChild(levelLabel)
 
         let again = makeButton(width: 220, height: 56, color: palette.green, name: "restart")
         again.position = CGPoint(x: Self.canvasW / 2, y: 400)
@@ -428,6 +578,11 @@ final class GameScene: SKScene {
             }
         case .resultCorrect:
             if name == "next_scene" {
+                if quickPlay {
+                    quickPlay = false
+                    showTitle()
+                    return
+                }
                 let nextIndex = sceneIndex + 1
                 if nextIndex < questions.count {
                     showScene(nextIndex)
@@ -498,5 +653,14 @@ extension SKColor {
 extension Array {
     subscript(safe index: Int) -> Element? {
         indices.contains(index) ? self[index] : nil
+    }
+}
+
+func leagueName(_ league: String) -> String {
+    switch league {
+    case "silver": return "실버"
+    case "gold": return "골드"
+    case "diamond": return "다이아몬드"
+    default: return "브론즈"
     }
 }

@@ -1,6 +1,7 @@
 // WordvilleApp — @main 진입점 (메뉴바 아이콘 + 게임 윈도우 하이브리드)
 import SwiftUI
 import CoreText
+import Network
 
 @main
 struct WordvilleApp: App {
@@ -9,7 +10,7 @@ struct WordvilleApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView()
+            SettingsView(onClose: {})
                 .environmentObject(settings)
         }
     }
@@ -18,6 +19,9 @@ struct WordvilleApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let menuBar = MenuBarController()
     private let gameWindow = GameWindowController()
+    private let debugPanel = DebugPanelWindowController()
+    private let pathMonitor = NWPathMonitor()
+    private let monitorQueue = DispatchQueue(label: "wordville.network")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         registerBundledFonts()
@@ -26,12 +30,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.setup()
         menuBar.monitorDebugHotkey()
         menuBar.applyActivationPolicy()
+        debugPanel.setup()
         gameWindow.show()
+        NotificationManager.shared.syncWithSetting(SettingsStore.shared.notificationsEnabled)
+        startOfflineQueueSync()
         DebugLogger.shared.feature("앱", "시작됨 (메뉴바 + 게임 윈도우)")
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    // 오프라인 큐 자동 flush: 시작 시 + 온라인 복구 시 (DESIGN 1.2 FLUSH)
+    private func startOfflineQueueSync() {
+        Task {
+            let pending = APIClient.shared.pendingCount()
+            if pending > 0 {
+                DebugLogger.shared.feature("오프라인큐", "시작 시 자동 동기화", meta: ["pending": pending])
+                await APIClient.shared.flushQueue()
+            }
+        }
+        pathMonitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                Task {
+                    if APIClient.shared.pendingCount() > 0 {
+                        DebugLogger.shared.feature("오프라인큐", "온라인 복구 감지 — 동기화", meta: ["pending": APIClient.shared.pendingCount()])
+                        await APIClient.shared.flushQueue()
+                    }
+                }
+            }
+        }
+        pathMonitor.start(queue: monitorQueue)
     }
 
     private func registerBundledFonts() {

@@ -1,29 +1,33 @@
 // 오답 규칙 임베딩 (T2.4) — rule_key를 벡터화해 pgvector에 저장
 // 사용처: 답안 제출 시 오답 규칙 → 임베딩 생성 → wrong_embeddings upsert
-// T2.5+: 사용자 오답 규칙과 유사한 문제를 스케줄러가 우선 출제
+// 모델: gemini-embedding-2 (outputDimensionality 384 — pgvector vector(384) 호환, OpenRouter 크레딧 불필요)
 import { config } from '../config.js';
 import { logger } from '../logger.js';
 
+const EMBED_MODEL = 'gemini-embedding-2';
+const EMBED_DIMS = 384;
+
 export async function embedRuleKey(ruleKey: string): Promise<number[] | null> {
   logger.feature('embed.rule', '진입', { rule_key: ruleKey });
-  const res = await fetch('https://openrouter.ai/api/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.openRouterApiKey}`,
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${EMBED_MODEL}:embedContent?key=${config.geminiApiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: `models/${EMBED_MODEL}`,
+        content: { parts: [{ text: `한국어 맞춤법 규칙: ${ruleKey}` }] },
+        outputDimensionality: EMBED_DIMS,
+      }),
     },
-    body: JSON.stringify({
-      model: 'openai/text-embedding-3-small',
-      input: `한국어 맞춤법 규칙: ${ruleKey}`,
-    }),
-  });
+  );
   if (!res.ok) {
     const text = await res.text();
     logger.warn('임베딩 호출 실패', { status: res.status, body: text.slice(0, 150) });
     return null;
   }
-  const data = (await res.json()) as { data?: { embedding: number[] }[] };
-  const emb = data.data?.[0]?.embedding;
+  const data = (await res.json()) as { embedding?: { values?: number[] } };
+  const emb = data.embedding?.values;
   if (!emb) {
     logger.warn('임베딩 빈 응답');
     return null;

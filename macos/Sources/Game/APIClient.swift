@@ -76,6 +76,37 @@ final class APIClient {
         return data.user
     }
 
+    func fetchProfile() async throws -> AuthUser {
+        let r: APIResponse<AuthUser> = try await request("/users/me")
+        guard let data = r.data else { throw APIError.network }
+        return data
+    }
+
+    func updateNickname(_ nickname: String) async throws {
+        let _: APIResponse<EmptyData> = try await request("/users/me", method: "PATCH", body: ["nickname": nickname])
+        DebugLogger.shared.feature("APIClient", "닉네임 동기화 완료", meta: ["nickname": nickname])
+    }
+
+    func fetchStats() async throws -> UserStats {
+        let r: APIResponse<UserStats> = try await request("/users/me/stats")
+        guard let data = r.data else { throw APIError.network }
+        return data
+    }
+
+    func fetchWeeklyRanking() async throws -> WeeklyRanking {
+        let r: APIResponse<WeeklyRanking> = try await request("/rankings/weekly")
+        guard let data = r.data else { throw APIError.network }
+        DebugLogger.shared.feature("APIClient", "주간 랭킹 로드", meta: ["top": data.rankings.count, "myRank": data.my_rank ?? -1])
+        return data
+    }
+
+    func fetchQuickQuestion() async throws -> QuickQuestion {
+        let r: APIResponse<QuickQuestion> = try await request("/episodes/quick")
+        guard let data = r.data else { throw APIError.network }
+        DebugLogger.shared.feature("APIClient", "퀵플레이 문제 로드", meta: ["id": data.id])
+        return data
+    }
+
     // MARK: - 게임 데이터
 
     func fetchTodayEpisode() async throws -> Episode {
@@ -118,6 +149,53 @@ final class APIClient {
         loadQueue().count
     }
 
+    func queueItems() -> [QueuedAnswer] {
+        loadQueue()
+    }
+
+    func checkHealth() async -> Bool {
+        do {
+            let r: APIResponse<HealthData> = try await request("/health", authed: false)
+            DebugLogger.shared.feature("APIClient", "health 체크", meta: ["db": r.data?.db ?? "?", "latency_ms": r.data?.latency_ms ?? -1])
+            return r.data?.db == "up"
+        } catch {
+            DebugLogger.shared.log(.warn, "APIClient", "health 실패", meta: ["error": String(describing: error)])
+            return false
+        }
+    }
+
+    // MARK: - 서버 디버그 (DEBUG 모드 전용)
+
+    func fetchServerLogs() async -> [String] {
+        do {
+            let r: APIResponse<ServerLogs> = try await request("/debug/logs")
+            return r.data?.logs ?? []
+        } catch {
+            DebugLogger.shared.log(.warn, "APIClient", "서버 로그 조회 실패", meta: ["error": String(describing: error)])
+            return []
+        }
+    }
+
+    func fetchServerCache() async -> ServerCacheInfo? {
+        do {
+            let r: APIResponse<ServerCacheInfo> = try await request("/debug/cache")
+            return r.data
+        } catch {
+            DebugLogger.shared.log(.warn, "APIClient", "서버 캐시 조회 실패", meta: ["error": String(describing: error)])
+            return nil
+        }
+    }
+
+    func fetchServerQueue() async -> ServerQueueInfo? {
+        do {
+            let r: APIResponse<ServerQueueInfo> = try await request("/debug/queue")
+            return r.data
+        } catch {
+            DebugLogger.shared.log(.warn, "APIClient", "서버 큐 조회 실패", meta: ["error": String(describing: error)])
+            return nil
+        }
+    }
+
     private func loadQueue() -> [QueuedAnswer] {
         guard let data = defaults.data(forKey: queueKey),
               let queue = try? JSONDecoder().decode([QueuedAnswer].self, from: data) else { return [] }
@@ -144,3 +222,26 @@ final class APIClient {
 }
 
 struct EmptyData: Codable {}
+
+struct HealthData: Codable {
+    let ok: Bool?
+    let service: String?
+    let version: String?
+    let db: String?
+    let latency_ms: Int?
+}
+
+struct ServerLogs: Codable {
+    let logs: [String]?
+}
+
+struct ServerCacheInfo: Codable {
+    let hit_rate: Double?
+    let entries: Int?
+    let note: String?
+}
+
+struct ServerQueueInfo: Codable {
+    let pending: Int?
+    let note: String?
+}

@@ -21,7 +21,15 @@ struct Question: Codable {
     let scene_index: Int
     let narrative: String
     let choices: [Choice]
-    let explanation: String? = nil
+    let explanation: String?
+
+    init(id: Int, scene_index: Int, narrative: String, choices: [Choice], explanation: String? = nil) {
+        self.id = id
+        self.scene_index = scene_index
+        self.narrative = narrative
+        self.choices = choices
+        self.explanation = explanation
+    }
 }
 
 struct Choice: Codable {
@@ -52,12 +60,50 @@ struct AuthUser: Codable {
     let id: String
     let nickname: String
     let avatar_url: String?
+    let exp: Int?
+    let streak_days: Int?
+    let last_played: String?
+    let league: String?
+    let level: Int?
 }
 
 struct AuthResponse: Codable {
     let token: String
     let refresh_token: String?
     let user: AuthUser
+}
+
+struct UserStats: Codable {
+    let correct: Int?
+    let wrong: Int?
+    let wrong_top: [WrongRule]?
+}
+
+struct WrongRule: Codable {
+    let rule_key: String?
+    let wrong_count: Int?
+}
+
+struct WeeklyRanking: Codable {
+    let week_key: String?
+    let my_rank: Int?
+    let rankings: [RankingEntry]
+}
+
+struct RankingEntry: Codable {
+    let id: String
+    let nickname: String
+    let league: String?
+    let score: Int?
+}
+
+struct QuickQuestion: Codable {
+    let id: Int
+    let scene_index: Int
+    let narrative: String
+    let choices: [Choice]
+    let explanation: String?
+    let episode_title: String?
 }
 
 struct QuestionsResponse: Codable {

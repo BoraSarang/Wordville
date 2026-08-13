@@ -20,7 +20,7 @@ final class MenuBarController: NSObject, ObservableObject, NSPopoverDelegate {
         }
         statusItem = item
 
-        popover.contentSize = NSSize(width: 360, height: 340)
+        popover.contentSize = NSSize(width: 360, height: 380)
         popover.behavior = .transient
         popover.animates = true
         popover.delegate = self
@@ -38,6 +38,11 @@ final class MenuBarController: NSObject, ObservableObject, NSPopoverDelegate {
         }
     }
 
+    // 팝오버 내부 화면 높이 변경 (메뉴/설정/랭킹 전환 시)
+    func setPopoverHeight(_ height: CGFloat) {
+        popover.contentSize = NSSize(width: 360, height: height)
+    }
+
     private func showPopover() {
         guard let button = statusItem?.button else { return }
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
@@ -50,6 +55,14 @@ final class MenuBarController: NSObject, ObservableObject, NSPopoverDelegate {
         popover.performClose(nil)
         DebugLogger.shared.feature("메뉴바", "게임 윈도우 열기")
         gameWindow?.show()
+    }
+
+    // 1문제 퀵플레이 (팝오버 메뉴에서 호출)
+    func openQuickPlay() {
+        popover.performClose(nil)
+        DebugLogger.shared.feature("메뉴바", "퀵플레이 열기")
+        gameWindow?.show()
+        NotificationCenter.default.post(name: .quickPlayRequest, object: nil)
     }
 
     // Dock 표시 토글 (설정에서 호출) — 기본 .regular (Dock + 메뉴바 동시 사용)

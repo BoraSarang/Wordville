@@ -9,6 +9,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   databaseUrl: process.env.DATABASE_URL ?? '',
   zenApiKey: process.env.ZEN_API_KEY ?? '',
+  geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   openRouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
   debugLogs: process.env.DEBUG_LOGS === 'true',
   corsOrigins: (process.env.CORS_ORIGINS ?? '*').split(','),

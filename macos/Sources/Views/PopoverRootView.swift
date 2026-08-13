@@ -1,59 +1,88 @@
-// PopoverRootView — 메뉴바 팝오버 메뉴 (오늘의 에피소드 / 설정… / 종료)
+// PopoverRootView — 메뉴바 팝오버 (메뉴/설정/랭킹 내부 화면 전환 — 항상 메뉴바 아래 상단 정렬)
 import SwiftUI
+
+enum PopoverScreen {
+    case main, settings, ranking
+}
 
 struct PopoverRootView: View {
     @EnvironmentObject var settings: SettingsStore
     @ObservedObject var menuBar: MenuBarController
-    @State private var showSettings = false
-    @State private var showDebugPanel = false
+    @State private var screen: PopoverScreen = .main
 
     var body: some View {
         VStack(spacing: 0) {
-            header
-            Divider()
-            menuList
-            Divider()
-            footer
+            switch screen {
+            case .main:
+                header
+                Divider()
+                menuList
+                Divider()
+                footer
+            case .settings:
+                SettingsView {
+                    screen = .main
+                }
+                .environmentObject(settings)
+            case .ranking:
+                RankingView {
+                    screen = .main
+                }
+                .environmentObject(settings)
+            }
         }
         .frame(width: 360)
-        .onReceive(NotificationCenter.default.publisher(for: .toggleDebugPanel)) { _ in
-            showDebugPanel.toggle()
+        .onChange(of: screen) { _, newScreen in
+            switch newScreen {
+            case .main: menuBar.setPopoverHeight(380)
+            case .settings: menuBar.setPopoverHeight(460)
+            case .ranking: menuBar.setPopoverHeight(500)
+            }
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-                .environmentObject(settings)
-        }
-        .sheet(isPresented: $showDebugPanel) {
-            DebugPanelView()
-        }
+        .task { await settings.refreshProfile() }
     }
 
     private var header: some View {
-        HStack {
-            Image(systemName: "pencil.and.list.clipboard.fill")
-                .font(.title2)
-                .foregroundStyle(.brown)
+        HStack(spacing: 12) {
+            AsyncImage(url: settings.profile?.avatar_url.flatMap { URL(string: $0) }) { image in
+                image.resizable().interpolation(.none)
+            } placeholder: {
+                Image(systemName: "person.crop.circle.fill")
+                    .font(.title)
+                    .foregroundStyle(.brown)
+            }
+            .frame(width: 40, height: 40)
+            .clipShape(Circle())
             VStack(alignment: .leading, spacing: 2) {
-                Text("글마을 달인")
+                Text(settings.profile?.nickname ?? settings.nickname)
                     .font(.headline)
-                Text(settings.nickname)
+                Text("Lv.\(settings.level) · 🔥\(settings.streakDays)일 · EXP \(settings.exp)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            LeagueBadge(league: settings.league)
         }
         .padding(14)
     }
 
     private var menuList: some View {
         VStack(spacing: 2) {
+            MenuRow(icon: "bolt.fill", title: "1문제 퀵플레이", subtitle: "랜덤 문제 바로 도전") {
+                DebugLogger.shared.feature("퀵플레이", "팝오버에서 선택됨")
+                menuBar.openQuickPlay()
+            }
             MenuRow(icon: "book.fill", title: "오늘의 에피소드", subtitle: "일상 상황극 맞춤법 퀴즈") {
                 DebugLogger.shared.feature("오늘의에피소드", "선택됨")
                 menuBar.openGame()
             }
+            MenuRow(icon: "trophy.fill", title: "주간 랭킹", subtitle: "리그 순위 확인") {
+                DebugLogger.shared.feature("랭킹", "팝오버에서 열림")
+                screen = .ranking
+            }
             MenuRow(icon: "gearshape.fill", title: "설정…", subtitle: "Dock 표시 / 닉네임 / 알림") {
                 DebugLogger.shared.feature("설정", "팝오버에서 열림")
-                showSettings = true
+                screen = .settings
             }
         }
         .padding(8)
@@ -72,6 +101,28 @@ struct PopoverRootView: View {
             .font(.caption)
         }
         .padding(12)
+    }
+}
+
+struct LeagueBadge: View {
+    let league: String
+
+    private var color: Color {
+        switch league {
+        case "silver": return .gray
+        case "gold": return .orange
+        case "diamond": return .blue
+        default: return Color(red: 0.55, green: 0.36, blue: 0.16)
+        }
+    }
+
+    var body: some View {
+        Text(leagueName(league))
+            .font(.caption2).bold()
+            .foregroundStyle(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(color, in: Capsule())
     }
 }
 

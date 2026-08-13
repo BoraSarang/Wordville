@@ -66,6 +66,62 @@ gameRouter.get('/episodes/:id/questions', authMiddleware, async (req, res) => {
   });
 });
 
+// GET /episodes/quick — 퀵플레이 1문제 (개인화: 오답 유형 우선, 2회+ 정답 유형 제외 — DESIGN 2.4)
+gameRouter.get('/episodes/quick', authMiddleware, async (req, res) => {
+  const { userId } = req as AuthedRequest;
+  logger.feature('episodes.quick', '진입', { userId });
+  // 1) 자주 틀리는 rule_key Top3 (DESIGN 2.4-1,2)
+  const wrong = await pool.query(
+    `SELECT rule_key FROM wrong_embeddings
+     WHERE user_id = $1 ORDER BY wrong_count DESC, last_wrong_at DESC LIMIT 3`,
+    [userId],
+  );
+  const wrongKeys = wrong.rows.map((r: any) => r.rule_key);
+  // 2) 2회 이상 정답인 rule_key 제외 (DESIGN 2.4-3)
+  let excluded: string[] = [];
+  if (wrongKeys.length > 0) {
+    const ok = await pool.query(
+      `SELECT q.rule_key, COUNT(*) FILTER (WHERE a.is_correct)::int AS correct_count
+       FROM questions q JOIN answers a ON a.question_id = q.id
+       WHERE a.user_id = $1 AND q.rule_key = ANY($2)
+       GROUP BY q.rule_key HAVING COUNT(*) FILTER (WHERE a.is_correct) >= 2`,
+      [userId, wrongKeys],
+    );
+    excluded = ok.rows.map((r: any) => r.rule_key);
+  }
+  const targets = wrongKeys.filter((k: string) => !excluded.includes(k));
+
+  let q: any;
+  if (targets.length > 0) {
+    const r = await pool.query(
+      `SELECT q.id, q.scene_index, q.narrative, q.choices, q.explanation, q.rule_key, e.title AS episode_title
+       FROM questions q JOIN episodes e ON e.id = q.episode_id
+       WHERE q.rule_key = ANY($1)
+       ORDER BY random() LIMIT 1`,
+      [targets],
+    );
+    if (r.rowCount! > 0) {
+      q = r.rows[0];
+      logger.feature('episodes.quick', '개인화 매칭', { rule_key: q.rule_key, targets });
+    }
+  }
+  if (!q) {
+    const r = await pool.query(
+      `SELECT q.id, q.scene_index, q.narrative, q.choices, q.explanation, q.rule_key, e.title AS episode_title
+       FROM questions q JOIN episodes e ON e.id = q.episode_id
+       ORDER BY random() LIMIT 1`,
+    );
+    q = r.rows[0];
+    logger.feature('episodes.quick', '랜덤 폴백');
+  }
+  if (!q) {
+    res.status(404).json({ ok: false, error: { code: 'E-SRV-GEN-1001', message: '문제를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.' } });
+    return;
+  }
+  logger.feature('episodes.quick', '완료', { questionId: q.id, rule_key: q.rule_key });
+  res.json({ ok: true, data: { ...q, id: Number(q.id) } });
+});
+
 // POST /answers — 답안 제출 + 채점 + EXP/스트릭/오답 기록
 gameRouter.post('/answers', authMiddleware, async (req, res) => {
   const { userId } = req as AuthedRequest;
@@ -190,8 +246,8 @@ gameRouter.get('/rankings/weekly', authMiddleware, async (req, res) => {
     ok: true,
     data: {
       week_key: weekKey,
-      my_rank: myRank.rows[0]?.rank ?? null,
-      rankings: top.rows,
+      my_rank: myRank.rows[0]?.rank != null ? Number(myRank.rows[0].rank) : null,
+      rankings: top.rows.map((r: any) => ({ ...r, score: Number(r.score) })),
     },
   });
 });

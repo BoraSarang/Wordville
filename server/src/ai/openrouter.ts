@@ -12,6 +12,10 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 export const FREE_FALLBACK_MODEL = 'openai/gpt-oss-20b:free';
 
+export function cacheStats() {
+  return { entries: cache.size, hitRate: 0 };
+}
+
 function cacheKey(model: string, promptVersion: string, messages: ChatMessage[]): string {
   return `${model}|${promptVersion}|${messages.map((m) => m.content).join('||')}`;
 }
