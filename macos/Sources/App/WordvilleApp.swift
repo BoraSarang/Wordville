@@ -24,6 +24,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let monitorQueue = DispatchQueue(label: "wordville.network")
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // 중복 실행 방지: 이미 실행 중인 인스턴스가 있으면 종료
+        if isAnotherInstanceRunning() {
+            DebugLogger.shared.feature("앱", "중복 실행 감지 — 새 인스턴스 종료")
+            NSApp.terminate(nil)
+            return
+        }
         registerBundledFonts()
         gameWindow.setup()
         menuBar.gameWindow = gameWindow
@@ -64,6 +70,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         pathMonitor.start(queue: monitorQueue)
+    }
+
+    // 중복 실행 방지 — 같은 번들 ID의 다른 인스턴스가 실행 중이면 true
+    private func isAnotherInstanceRunning() -> Bool {
+        guard let bundleID = Bundle.main.bundleIdentifier else { return false }
+        let mine = ProcessInfo.processInfo.processIdentifier
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+            .contains { $0.processIdentifier != mine }
     }
 
     private func registerBundledFonts() {

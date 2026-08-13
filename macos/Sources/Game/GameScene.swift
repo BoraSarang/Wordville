@@ -287,22 +287,6 @@ final class GameScene: SKScene {
             scoreLabel.horizontalAlignmentMode = .right
             scoreLabel.position = CGPoint(x: 298, y: rowY)
             addChild(scoreLabel)
-
-            if let league = entry.league, league != "bronze" {
-                let leagueLabel = SKLabelNode(text: leagueName(league))
-                leagueLabel.fontName = "Galmuri11-Bold"
-                leagueLabel.fontSize = 10
-                leagueLabel.fontColor = .white
-                leagueLabel.verticalAlignmentMode = .center
-                leagueLabel.position = CGPoint(x: 268, y: rowY)
-                let badge = SKShapeNode(rectOf: CGSize(width: 44, height: 18), cornerRadius: 9)
-                badge.fillColor = leagueColor(league)
-                badge.strokeColor = .clear
-                badge.position = leagueLabel.position
-                badge.zPosition = -1
-                addChild(badge)
-                addChild(leagueLabel)
-            }
         }
         DebugLogger.shared.feature("게임", "랭킹 화면 표시됨", meta: ["myRank": data.my_rank ?? -1, "rows": top.count])
     }
