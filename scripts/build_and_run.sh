@@ -80,10 +80,19 @@ macos_debug() {
   [ -d "$built_app" ] || fail "빌드 산출물 없음: $built_app"
   rm -rf "$APPS_DIR/$MAC_APP_NAME"
   cp -R "$built_app" "$APPS_DIR/$MAC_APP_NAME"
+  # 알림(UNUserNotificationCenter)은 adhoc 서명에서 자동 거부(UNErrorDomain Code=1)됨 — Apple Development 서명 필수
+  local dev_id
+  dev_id="$(security find-identity -v -p codesigning 2>/dev/null | awk '/Apple Development/{print $2; exit}')"
+  if [ -n "$dev_id" ]; then
+    codesign --force --sign "$dev_id" "$APPS_DIR/$MAC_APP_NAME"
+    log "Apple Development 서명 완료: ${dev_id:0:20}…"
+  else
+    log "WARN: Apple Development 인증서 없음 — 알림 기능 동작 안 함 (adhoc)"
+  fi
   log "배포 완료: $APPS_DIR/$MAC_APP_NAME"
   open "$APPS_DIR/$MAC_APP_NAME"
   sleep 3
-  ./scripts/a11y-dump.sh macos "$VERSION" || log "a11y-dump 경고 (선택)"
+  "$ROOT/scripts/a11y-dump.sh" macos "$VERSION" || log "a11y-dump 경고 (선택)"
 }
 
 # --- Android ---

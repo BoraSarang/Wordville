@@ -16,7 +16,7 @@ check_file() {
   echo "[env-expiry] $file"
   while IFS= read -r line; do
     case "$line" in
-      *"# expires:"*)
+      *=*"# expires:"*)
         local key expires
         key="$(echo "$line" | sed 's/=.*//; s/^# *//')"
         expires="$(echo "$line" | sed 's/.*# expires: *//; s/ .*//')"

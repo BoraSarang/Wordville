@@ -1,4 +1,4 @@
-=== Wordville a11y dump (macOS, 2026-08-13 18:24:41) ===
+=== Wordville a11y dump (macOS, 2026-08-13 18:34:56) ===
 --- 프로세스 ---
 22580 node /Users/lee/Documents/Apps/Wordville/server/node_modules/.bin/tsx src/index.ts
 22581 /Users/lee/.nvm/versions/node/v22.23.1/bin/node --require /Users/lee/Documents/Apps/Wordville/server/node_modules/tsx/dist/preflight.cjs --import file:///Users/lee/Documents/Apps/Wordville/server/node_modules/tsx/dist/loader.mjs src/index.ts
