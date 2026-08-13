@@ -1,4 +1,4 @@
-// SettingsView — 설정: Dock 표시 토글, 닉네임, 알림, 서버 주소
+// SettingsView — 설정: 닉네임, 알림, 서버 주소
 import SwiftUI
 
 struct SettingsView: View {

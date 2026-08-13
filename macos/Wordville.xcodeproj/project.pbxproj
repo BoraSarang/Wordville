@@ -9,9 +9,16 @@
 /* Begin PBXBuildFile section */
 		1D1C575B4AA0FCFB31440340 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */; };
 		1FC9D1EC502C1A3DA26B2E34 /* DebugPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */; };
+		39CAD8DB9D33357A22CC28E8 /* GameRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE757A09CF55BD63797C874A /* GameRootView.swift */; };
+		4B8761452B4DDE266C9FF4BC /* GameWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6D6D7C5CF987F6AF1732C8 /* GameWindowController.swift */; };
 		51EDA887FE66AA86E7058647 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E445134237B1DF04E55A8E /* SettingsView.swift */; };
+		544F4123BF183B2795E58C4D /* GameViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC5D1A577214827BD5C305E /* GameViewRepresentable.swift */; };
+		67534E964234E8B987898BF8 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3DCD96B82AE78426A2AEC /* GameScene.swift */; };
+		6FF7D6AAAD00826CF45ACADD /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20A72AC97A0EF4BFFCFE53F3 /* GameData.swift */; };
 		7CA79B1625117AE45D709B5B /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A663BEA256FA7E8D109A2D14 /* DebugLogger.swift */; };
+		96143FFB32EC793C7DDC79A3 /* GameModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F4EFEF27A51A3CB7DB3D90 /* GameModels.swift */; };
 		9FC360FBC422A8DAF27F9A4C /* WordvilleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19078E143C4C812EF143F465 /* WordvilleApp.swift */; };
+		AB04AADA664BD1734C274984 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9718D5F145698B89DA17CD3F /* GameViewController.swift */; };
 		D36BD5BCD1309B6E1A585F13 /* PopoverRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8C159059158364B501DA29 /* PopoverRootView.swift */; };
 		F5971039CE02D853DEC09FED /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DB76976F6CDE84193415CE /* MenuBarController.swift */; };
 /* End PBXBuildFile section */
@@ -20,10 +27,17 @@
 		05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		06DB76976F6CDE84193415CE /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		19078E143C4C812EF143F465 /* WordvilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordvilleApp.swift; sourceTree = "<group>"; };
+		20A72AC97A0EF4BFFCFE53F3 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
 		7272C377AA8F2AC054907B9E /* Wordville.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wordville.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		92F4EFEF27A51A3CB7DB3D90 /* GameModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModels.swift; sourceTree = "<group>"; };
+		9718D5F145698B89DA17CD3F /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		9A8C159059158364B501DA29 /* PopoverRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverRootView.swift; sourceTree = "<group>"; };
 		A663BEA256FA7E8D109A2D14 /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		A8A3DCD96B82AE78426A2AEC /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugPanelView.swift; sourceTree = "<group>"; };
+		AE757A09CF55BD63797C874A /* GameRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRootView.swift; sourceTree = "<group>"; };
+		BEC5D1A577214827BD5C305E /* GameViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewRepresentable.swift; sourceTree = "<group>"; };
+		CA6D6D7C5CF987F6AF1732C8 /* GameWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameWindowController.swift; sourceTree = "<group>"; };
 		E0E445134237B1DF04E55A8E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -31,6 +45,7 @@
 		31183830F2F6E7D3F1C9882C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				AE757A09CF55BD63797C874A /* GameRootView.swift */,
 				9A8C159059158364B501DA29 /* PopoverRootView.swift */,
 				E0E445134237B1DF04E55A8E /* SettingsView.swift */,
 			);
@@ -51,6 +66,7 @@
 			children = (
 				F5B90D70B1CE1E273BDEEBFF /* App */,
 				59ED3F6FC3F7D6A16583332C /* Debug */,
+				ABC230E044BE3F9428013C2D /* Game */,
 				31183830F2F6E7D3F1C9882C /* Views */,
 			);
 			path = Sources;
@@ -64,6 +80,18 @@
 			);
 			sourceTree = "<group>";
 		};
+		ABC230E044BE3F9428013C2D /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				20A72AC97A0EF4BFFCFE53F3 /* GameData.swift */,
+				92F4EFEF27A51A3CB7DB3D90 /* GameModels.swift */,
+				A8A3DCD96B82AE78426A2AEC /* GameScene.swift */,
+				9718D5F145698B89DA17CD3F /* GameViewController.swift */,
+				BEC5D1A577214827BD5C305E /* GameViewRepresentable.swift */,
+			);
+			path = Game;
+			sourceTree = "<group>";
+		};
 		EB9EBDE750C37B4A841497C2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -75,6 +103,7 @@
 		F5B90D70B1CE1E273BDEEBFF /* App */ = {
 			isa = PBXGroup;
 			children = (
+				CA6D6D7C5CF987F6AF1732C8 /* GameWindowController.swift */,
 				06DB76976F6CDE84193415CE /* MenuBarController.swift */,
 				05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */,
 				19078E143C4C812EF143F465 /* WordvilleApp.swift */,
@@ -139,6 +168,13 @@
 			files = (
 				7CA79B1625117AE45D709B5B /* DebugLogger.swift in Sources */,
 				1FC9D1EC502C1A3DA26B2E34 /* DebugPanelView.swift in Sources */,
+				6FF7D6AAAD00826CF45ACADD /* GameData.swift in Sources */,
+				96143FFB32EC793C7DDC79A3 /* GameModels.swift in Sources */,
+				39CAD8DB9D33357A22CC28E8 /* GameRootView.swift in Sources */,
+				67534E964234E8B987898BF8 /* GameScene.swift in Sources */,
+				AB04AADA664BD1734C274984 /* GameViewController.swift in Sources */,
+				544F4123BF183B2795E58C4D /* GameViewRepresentable.swift in Sources */,
+				4B8761452B4DDE266C9FF4BC /* GameWindowController.swift in Sources */,
 				F5971039CE02D853DEC09FED /* MenuBarController.swift in Sources */,
 				D36BD5BCD1309B6E1A585F13 /* PopoverRootView.swift in Sources */,
 				1D1C575B4AA0FCFB31440340 /* SettingsStore.swift in Sources */,
@@ -158,8 +194,6 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
-				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -179,8 +213,6 @@
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
-				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

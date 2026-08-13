@@ -157,13 +157,13 @@ CREATE TABLE weekly_rankings (
 ## 3. macOS 앱 (Swift + SpriteKit)
 
 ### 3.1 앱 형태
-- 메뉴바 전용 앱: NSStatusItem + NSPopover
-  - 메뉴: 오늘의 에피소드 / 1문제 퀵플레이 / 프로필(닉네임·스트릭) / 설정… / 종료
-- 설정 창 (SwiftUI): Dock 표시 토글 (`NSApp.setActivationPolicy`), 닉네임, 알림 토글
-- 기본: `.accessory` (Dock 숨김) + 메뉴바 아이콘
+- 일반 윈도우 앱 (Dock 아이콘 표시, `.regular`): 360×780 고정 게임 윈도우
+  - 실행 시 바로 게임 타이틀 화면 (에피소드 시작), 상단 오버레이: 설정/닫기 버튼
+  - Android 풀스크린(360×780dp)과 동일 캔버스/상태 머신
+- 설정 창 (SwiftUI): 닉네임, 알림 토글, 서버 주소 (게임 위 오버레이 → 시트)
 
 ### 3.2 화면 구성
-- SpriteKit `SKView` 360×780 고정 윈도우 (또는 팝오버 내 게임)
+- SpriteKit `SKView` 360×780 고정 윈도우 (일반 앱 창, 타이틀 "글마을 달인")
 - GameScene: 타일 맵 + 캐릭터 + 대화창 + 문제 패널 (상태 머신 1.2)
 - DebugPanel: Cmd+Shift+D → 로그 오버레이
 

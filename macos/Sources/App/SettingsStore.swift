@@ -30,7 +30,7 @@ final class SettingsStore: ObservableObject {
             uuid = newUUID
         }
         nickname = defaults.string(forKey: "nickname") ?? "글마을 주민"
-        dockVisible = defaults.bool(forKey: "dockVisible")
+        dockVisible = defaults.object(forKey: "dockVisible") as? Bool ?? true
         notificationsEnabled = defaults.object(forKey: "notificationsEnabled") as? Bool ?? true
         serverBaseURL = defaults.string(forKey: "serverBaseURL") ?? "http://localhost:3000"
         DebugLogger.shared.feature("SettingsStore", "로드됨", meta: ["uuid": uuid.prefix(8), "dock": dockVisible])

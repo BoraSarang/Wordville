@@ -1,11 +1,13 @@
-// MenuBarController — NSStatusItem + NSPopover 메뉴바 앱 컨트롤러
+// MenuBarController — NSStatusItem 메뉴바 아이콘 + 팝오버 메뉴
+// 메뉴: 오늘의 에피소드(게임 윈도우 열기) / 설정…(Dock 토글 포함) / 종료
 import AppKit
 import SwiftUI
 
-final class MenuBarController: NSObject, NSPopoverDelegate {
+final class MenuBarController: NSObject, ObservableObject, NSPopoverDelegate {
     private var statusItem: NSStatusItem?
     private let popover = NSPopover()
     private let settings = SettingsStore.shared
+    weak var gameWindow: GameWindowController?
 
     func setup() {
         DebugLogger.shared.feature("메뉴바", "초기화 시작")
@@ -18,19 +20,19 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         }
         statusItem = item
 
-        popover.contentSize = NSSize(width: 360, height: 520)
+        popover.contentSize = NSSize(width: 360, height: 340)
         popover.behavior = .transient
         popover.animates = true
         popover.delegate = self
-        popover.contentViewController = NSHostingController(rootView: PopoverRootView().environmentObject(settings))
-
-        applyActivationPolicy()
+        popover.contentViewController = NSHostingController(
+            rootView: PopoverRootView(menuBar: self).environmentObject(settings)
+        )
         DebugLogger.shared.feature("메뉴바", "초기화 완료")
     }
 
     @objc private func togglePopover() {
         if popover.isShown {
-            closePopover()
+            popover.performClose(nil)
         } else {
             showPopover()
         }
@@ -43,12 +45,14 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         DebugLogger.shared.feature("팝오버", "표시됨")
     }
 
-    private func closePopover() {
+    // 게임 윈도우 열기 (팝오버 메뉴에서 호출)
+    func openGame() {
         popover.performClose(nil)
-        DebugLogger.shared.feature("팝오버", "닫힘")
+        DebugLogger.shared.feature("메뉴바", "게임 윈도우 열기")
+        gameWindow?.show()
     }
 
-    // Dock 표시 토글 (설정에서 호출) — 기본 .accessory (Dock 숨김)
+    // Dock 표시 토글 (설정에서 호출) — 기본 .regular (Dock + 메뉴바 동시 사용)
     func applyActivationPolicy() {
         let visible = settings.dockVisible
         NSApp.setActivationPolicy(visible ? .regular : .accessory)
@@ -63,7 +67,7 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         NSApp.terminate(nil)
     }
 
-    // Cmd+Shift+D 디버그 패널 (로컬 키 모니터 — 팝오버 포커스 중)
+    // Cmd+Shift+D 디버그 패널 (팝오버/게임 윈도우 포커스 중)
     func monitorDebugHotkey() {
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard event.modifierFlags.contains([.command, .shift]),
@@ -77,8 +81,4 @@ final class MenuBarController: NSObject, NSPopoverDelegate {
         DebugLogger.shared.feature("DebugPanel", "Cmd+Shift+D 토글")
         NotificationCenter.default.post(name: .toggleDebugPanel, object: nil)
     }
-}
-
-extension Notification.Name {
-    static let toggleDebugPanel = Notification.Name("toggleDebugPanel")
 }

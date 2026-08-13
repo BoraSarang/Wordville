@@ -1,4 +1,4 @@
-// WordvilleApp — @main 진입점 (메뉴바 전용 앱)
+// WordvilleApp — @main 진입점 (메뉴바 아이콘 + 게임 윈도우 하이브리드)
 import SwiftUI
 
 @main
@@ -16,10 +16,19 @@ struct WordvilleApp: App {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let menuBar = MenuBarController()
+    private let gameWindow = GameWindowController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        gameWindow.setup()
+        menuBar.gameWindow = gameWindow
         menuBar.setup()
         menuBar.monitorDebugHotkey()
-        // 첫 실행 시 Dock 표시 여부: dockVisible 기본값 false → 숨김 상태 유지
+        menuBar.applyActivationPolicy()
+        gameWindow.show()
+        DebugLogger.shared.feature("앱", "시작됨 (메뉴바 + 게임 윈도우)")
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        false
     }
 }
