@@ -75,7 +75,6 @@ final class MenuBarController: NSObject, ObservableObject, NSPopoverDelegate {
         DebugLogger.shared.feature("메뉴바", "랭킹 팝오버 열기")
         popover.performClose(nil)
         showPopover()
-        NotificationCenter.default.post(name: .openRankingRequest, object: nil)
     }
 
     // Dock 표시 토글 (설정에서 호출) — 기본 .regular (Dock + 메뉴바 동시 사용)
