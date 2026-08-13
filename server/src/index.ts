@@ -6,6 +6,7 @@ import { healthRouter } from './routes/health.js';
 import { debugRouter } from './routes/debug.js';
 import { usersRouter } from './routes/users.js';
 import { gameRouter } from './routes/game.js';
+import { startCatchUp, startScheduler } from './jobs/scheduler.js';
 
 const app = express();
 
@@ -54,4 +55,6 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(config.port, () => {
   logger.feature('server', `시작됨 (port ${config.port}, env ${config.nodeEnv}, debug ${isDebug})`);
+  startScheduler();
+  startCatchUp();
 });

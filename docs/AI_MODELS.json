@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.2",
   "language_lock": {
     "response": "ko",
     "reasoning": "ko",
@@ -7,37 +7,64 @@
   },
   "doc_first": {
     "enabled": true,
-    "required_files": ["docs/plans/PLAN_v0.1_common.md", "docs/TODO.md", "docs/DESIGN.md"],
+    "required_files": [
+      "docs/plans/PLAN_v0.1_common.md",
+      "docs/TODO.md",
+      "docs/DESIGN.md"
+    ],
     "session_auto_save_minutes": 15
   },
-  "default_chain": ["openrouter/deepseek/deepseek-v4-flash-free"],
+  "default_chain": [
+    "google/gemini-3.5-flash-lite"
+  ],
   "models": {
     "chat": {
-      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "model": "google/gemini-3.5-flash-lite",
       "temperature": 0.2,
       "max_tokens": 4096,
       "prompt_version": "chat_v0.1",
-      "vision_support": false
+      "vision_support": false,
+      "note": "deepseek-v4-flash-* 미존재/토큰소모 문제 → gemini-3.5-flash-lite (in $0.0000003, ~1.2s 응답)"
     },
     "code": {
-      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "model": "google/gemini-3.5-flash-lite",
       "temperature": 0.1,
       "max_tokens": 8192,
       "prompt_version": "code_v0.1",
-      "vision_support": false
+      "vision_support": false,
+      "note": "deepseek-v4-flash-* 미존재/토큰소모 문제 → gemini-3.5-flash-lite (in $0.0000003, ~1.2s 응답)"
     },
     "judge": {
-      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "model": "google/gemini-3.5-flash-lite",
       "temperature": 0.0,
       "max_tokens": 1024,
       "prompt_version": "judge_v0.1",
-      "vision_support": false
+      "vision_support": false,
+      "note": "deepseek-v4-flash-* 미존재/토큰소모 문제 → gemini-3.5-flash-lite (in $0.0000003, ~1.2s 응답)"
     }
   },
   "platforms": {
-    "macos": { "model": "code", "perf_budget": { "cold_start_ms": 1500, "fps": 60 } },
-    "android": { "model": "code", "perf_budget": { "cold_start_ms": 2000, "fps": 60 } },
-    "server": { "model": "judge", "perf_budget": { "p95_ms": 300, "memory_mb": 400 } }
+    "macos": {
+      "model": "code",
+      "perf_budget": {
+        "cold_start_ms": 1500,
+        "fps": 60
+      }
+    },
+    "android": {
+      "model": "code",
+      "perf_budget": {
+        "cold_start_ms": 2000,
+        "fps": 60
+      }
+    },
+    "server": {
+      "model": "judge",
+      "perf_budget": {
+        "p95_ms": 300,
+        "memory_mb": 400
+      }
+    }
   },
   "cache_policy": {
     "enabled": true,
@@ -47,9 +74,9 @@
     "storage": "server in-memory + DB(questions 중복 방지)"
   },
   "cost_guard": {
-    "max_cost_per_task_usd": 0.0,
-    "alert_at_usd": 0.0,
-    "note": "deepseek-v4-flash-free 무료 모델 — 문제 생성 비용 $0"
+    "max_cost_per_task_usd": 0.01,
+    "alert_at_usd": 0.005,
+    "note": "gemini-3.5-flash-lite: 5문항 생성+심판 루프 4회 ≈ 15k tokens ≈ $0.005 미만 (사실상 무료)"
   },
   "e2e": {
     "k6_threshold_p95_ms": 300
