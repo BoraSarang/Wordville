@@ -20,7 +20,9 @@
 | T3.1 | macOS 메뉴바 앱 골격 + 설정(Dock 토글) | macos | ✅ |
 | T3.2 | SpriteKit 게임 루프 | macos | ✅ |
 | T3.3 | 에셋 통합 + 폰트 + 오프라인 저장 | macos | ✅ (Kenney 스프라이트 + 폰트 3종 + 자동 flush) |
-| T3.4 | 빌드 + 배포(/Users/lee/Applications) + 맥 테스트 | macos | 🔄 진행중 |
+| T3.4 | 빌드 + 배포(/Users/lee/Applications) + 맥 테스트 | macos | 🔄 진행중 (선택 화면/아카이브/복습/랭킹 실기 확인 중) |
+| T3.5 | 5콤보 보너스 (이펙트 + 보너스 EXP) | macos+server | 🔄 진행중 |
+| T3.6 | 골든패스 (7일 연속 EXP 2배 + 배지 표시) | macos+server | 🔄 진행중 |
 
 ## 대기 (Phase 1~6)
 

@@ -1,5 +1,27 @@
 # CHANGELOG — Wordville
 
+## [v0.2.1] — 2026-08-13 (게임 선택 화면 + 아카이브/복습 + 게임 내 랭킹)
+
+### Added [macos]
+- 스플래시 화면(1.2s) + 게임 선택 화면 (오늘의 에피소드/퀵플레이/과거 에피소드/오답 복습/주간 랭킹)
+- 과거 에피소드 아카이브: 페이지 6개 목록(날짜·제목·✅완료), ▲▼ 이동, 다시 도전
+- 주간 랭킹 게임 내 화면: Top 10 + 내 순위 배너 (순위/이름/점수)
+- 팝오버 메뉴 "게임 열기 (메인 화면)" 항목
+- 앱 아이콘: 픽셀 아트(책+연필+'글') AppIcon.icns + 수동 Info.plist 전환
+- 중복 실행 방지 (NSRunningApplication 번들 ID)
+- Dock 아이콘 클릭 시 게임 윈도우 재표시 (applicationShouldHandleReopen)
+
+### Added [server]
+- GET /episodes: 에피소드 목록 (KST 날짜, played 포함)
+- GET /episodes/review: 오답 복습 5문제 (오답 rule_key 우선)
+- /episodes 날짜 KST 변환 (to_char UTC→Asia/Seoul)
+
+### Fixed
+- Dock 클릭 크래시: 닫힌 NSWindow dangling 포인터 → windowWillClose에서 프로퍼티 해제 + 재생성
+- 주간 랭킹 팝오버 가로 잘림 (420 고정 → 360 유연)
+- 랭킹 행 리그 배지 제거 (순위/이름/점수만)
+- 랭킹 팝오버 알림 순환 제거
+
 ## [v0.2.0] — 2026-08-13 (MVP 기능 완성 — 시드 110문항 + 개인화 + 비주얼)
 
 ### Added [server]
