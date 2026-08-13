@@ -112,7 +112,17 @@ android_debug() {
 
 # --- Release (T5.2) ---
 release() {
-  fail "release는 T5.2에서 구현 예정 (GitHub Releases)"
+  [ -x "$(command -v gh)" ] || fail "gh 미설치 (brew install gh + gh auth login)"
+  local tag="${TAG:-v0.3.0}"
+  local dir="/tmp/wordville-release"
+  rm -rf "$dir" && mkdir -p "$dir"
+  log "아티팩트 준비: $dir"
+  ditto -c -k --keepParent "$APPS_DIR/$MAC_APP_NAME" "$dir/Wordville-macOS-$tag.zip"
+  [ -f "$APK_OUT" ] && cp "$APK_OUT" "$dir/Wordville-android-$tag.apk" || fail "APK 없음"
+  ls -la "$dir"
+  gh release create "$tag" --title "$tag" --notes "글마을 달인 릴리스 $tag" \
+    "$dir/Wordville-macOS-$tag.zip" "$dir/Wordville-android-$tag.apk"
+  log "릴리스 완료: https://github.com/BoraSarang/Wordville/releases/tag/$tag"
 }
 
 # --- 디스패처 ---

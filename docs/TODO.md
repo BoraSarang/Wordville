@@ -31,10 +31,10 @@
 | T4.1 | Android libGDX 골격 + 게임 루프 이식 | android | ✅ (상태 머신 9종 + 폰트 + 도형 캐릭터) |
 | T4.2 | API 연동 + 익명 UUID + 오프라인 큐 | android | ✅ (OkHttp + serialization + SharedPreferences 큐) |
 | T4.3 | APK 빌드 | android | ✅ (debug APK, natives 4 ABI 포함) |
-| T4.4 | Genymotion 테스트 + apk 배포 | android | 🔄 진행중 (전 화면 실기 검증 완료, 5콤보 배너 시각 확인 대기) |
-| T5.1 | GitHub 랜딩 페이지 | web | ⏳ |
-| T5.2 | GitHub Releases | common | ⏳ |
-| T6.1 | a11y-dump + E2E + k6 검증 | common | 🔄 진행중 (a11y-dump 3종 + e2e-server.sh 10/10 통과, k6는 brew install 필요) |
+| T4.4 | Genymotion 테스트 + apk 배포 | android | ✅ (전 화면 실기 검증 + 폰트/아이콘 수정, 5콤보 배너는 실기 확인) |
+| T5.1 | GitHub 랜딩 페이지 | web | ✅ (https://borasarang.github.io/Wordville/ — gh-pages) |
+| T5.2 | GitHub Releases | common | ✅ (v0.3.0 — macOS zip + APK, build_and_run.sh release 구현) |
+| T6.1 | a11y-dump + E2E + k6 검증 | common | ✅ (a11y-dump 3종 + e2e-server 10/10 + k6 p95=250ms 실패 0%) |
 | T6.2 | DoD 체크리스트 + CHANGELOG | common | 🔄 진행중 (CHANGELOG 갱신 대기) |
 | T6.3 | 세션 로그 + bd 정리 | common | 🔄 진행중 (세션 로그 작성 대기) |
 | T7.1 | 일일 리마인더 알림 실기 테스트 (macOS) | macos | ⏳ |
