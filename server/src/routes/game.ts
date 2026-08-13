@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { pool } from '../db.js';
 import { authMiddleware } from '../auth.js';
 import { logger } from '../logger.js';
+import { recordWrongRule } from '../ai/embed.js';
 import type { AuthedRequest } from '../auth.js';
 
 export const gameRouter = Router();
@@ -125,15 +126,8 @@ gameRouter.post('/answers', authMiddleware, async (req, res) => {
       [WEEK_KEY(), userId, expGained],
     );
   } else {
-    // 오답 기억 (임베딩은 T2.4에서 LLM으로 채움, 현재 zero vector)
-    const zero = '[' + '0,'.repeat(383) + '0]';
-    await pool.query(
-      `INSERT INTO wrong_embeddings (user_id, rule_key, embedding)
-       VALUES ($1, $2, $3::vector)
-       ON CONFLICT (user_id, rule_key)
-       DO UPDATE SET wrong_count = wrong_embeddings.wrong_count + 1, last_wrong_at = now()`,
-      [userId, question.rule_key, zero],
-    );
+    // 오답 기억 (임베딩 저장 — 실패해도 채점에는 영향 없음)
+    await recordWrongRule(userId, question.rule_key).catch(() => undefined);
   }
 
   logger.feature('answers.submit', '완료', { isCorrect, expGained, streak: newStreak });

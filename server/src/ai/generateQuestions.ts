@@ -86,7 +86,7 @@ async function generateOnce(category: string, date: string): Promise<GeneratedEp
       { role: 'system', content: system },
       { role: 'user', content: user },
     ],
-    { temperature: 0.6, maxTokens: 4096, promptVersion: GENERATE_PROMPT_VERSION },
+    { temperature: 0.6, maxTokens: 2048, promptVersion: GENERATE_PROMPT_VERSION },
   );
   const ep = await parseJson<GeneratedEpisode>(raw);
   if (!validateEpisode(ep)) {
