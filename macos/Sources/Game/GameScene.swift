@@ -4,7 +4,7 @@
 import SpriteKit
 
 enum GameState {
-    case splash, selection, archive, scene, question, resultCorrect, resultWrong, clear
+    case splash, selection, archive, ranking, scene, question, resultCorrect, resultWrong, clear
 }
 
 final class GameScene: SKScene {
@@ -23,6 +23,7 @@ final class GameScene: SKScene {
     // 아카이브
     private var archiveList: [EpisodeSummary] = []
     private var archivePage = 0
+    private var rankingData: WeeklyRanking?
     private var archiveError = false
     private let archivePageSize = 6
 
@@ -205,10 +206,105 @@ final class GameScene: SKScene {
 
     // MARK: - ARCHIVE (과거 에피소드 목록)
 
-    // 주간 랭킹 팝오버 열기 (게임 창 → 메뉴바 팝오버)
-    private func openRanking() {
-        DebugLogger.shared.feature("게임", "랭킹 열기 요청")
-        NotificationCenter.default.post(name: .openRankingRequest, object: nil)
+    // 주간 랭킹 (게임 내 화면)
+    private func loadRanking() async {
+        DebugLogger.shared.feature("게임", "랭킹 로드 시작")
+        do {
+            _ = try await APIClient.shared.ensureAuth()
+            let data = try await APIClient.shared.fetchWeeklyRanking()
+            await MainActor.run {
+                rankingData = data
+                showRanking()
+            }
+        } catch {
+            DebugLogger.shared.log(.warn, "게임", "랭킹 로드 실패", meta: ["error": String(describing: error)])
+            await MainActor.run {
+                state = .ranking
+                clearLayers()
+                makeCancelButton()
+                let err = makeLabel("랭킹을 불러오지 못했어요", size: 18, color: palette.brown)
+                err.position = CGPoint(x: Self.canvasW / 2, y: 460)
+                addChild(err)
+                let sub = makeLabel("네트워크 연결을 확인해 주세요", size: 13, color: palette.brown.withAlphaComponent(0.7), font: .body)
+                sub.position = CGPoint(x: Self.canvasW / 2, y: 420)
+                addChild(sub)
+                makeMenuButton(name: "rank_retry", color: palette.peach, title: "다시 시도", subtitle: "", y: 330)
+            }
+        }
+    }
+
+    private func showRanking() {
+        state = .ranking
+        clearLayers()
+        makeCancelButton()
+        let title = makeLabel("🏆 주간 랭킹", size: 26, color: palette.brown)
+        title.position = CGPoint(x: Self.canvasW / 2, y: 700)
+        addChild(title)
+
+        guard let data = rankingData else { return }
+
+        if let myRank = data.my_rank {
+            let banner = makeButton(width: 300, height: 46, color: palette.sky, name: "rank_self")
+            banner.position = CGPoint(x: Self.canvasW / 2, y: 630)
+            addChild(banner)
+            let label = makeLabel("내 순위 \(myRank)위 · \(SettingsStore.shared.profile?.nickname ?? SettingsStore.shared.nickname)", size: 15, color: .white)
+            label.position = banner.position
+            addChild(label)
+        }
+
+        let top = Array(data.rankings.prefix(10))
+        for (index, entry) in top.enumerated() {
+            let rowY = 575 - CGFloat(index) * 42
+            let row = makeButton(width: 300, height: 36, color: SKColor.white.withAlphaComponent(0.6), name: "rank_row_\(index)")
+            row.position = CGPoint(x: Self.canvasW / 2, y: rowY)
+            addChild(row)
+
+            let rankText = "\(index + 1)"
+            let rankLabel = SKLabelNode(text: rankText)
+            rankLabel.fontName = "Galmuri11-Bold"
+            rankLabel.fontSize = 15
+            rankLabel.fontColor = index < 3 ? SKColor(hex: 0xE8862A) : palette.brown
+            rankLabel.verticalAlignmentMode = .center
+            rankLabel.position = CGPoint(x: 62, y: rowY)
+            addChild(rankLabel)
+
+            let nameLabel = SKLabelNode(text: entry.nickname)
+            nameLabel.fontName = "NeoDunggeunmo-Regular"
+            nameLabel.fontSize = 13
+            nameLabel.fontColor = palette.brown
+            nameLabel.verticalAlignmentMode = .center
+            nameLabel.horizontalAlignmentMode = .left
+            nameLabel.position = CGPoint(x: 92, y: rowY)
+            nameLabel.lineBreakMode = .byTruncatingTail
+            nameLabel.preferredMaxLayoutWidth = 130
+            addChild(nameLabel)
+
+            let scoreLabel = SKLabelNode(text: "\(entry.score ?? 0)점")
+            scoreLabel.fontName = "NeoDunggeunmo-Regular"
+            scoreLabel.fontSize = 12
+            scoreLabel.fontColor = palette.brown
+            scoreLabel.verticalAlignmentMode = .center
+            scoreLabel.horizontalAlignmentMode = .right
+            scoreLabel.position = CGPoint(x: 298, y: rowY)
+            addChild(scoreLabel)
+
+            if let league = entry.league, league != "bronze" {
+                let leagueLabel = SKLabelNode(text: leagueName(league))
+                leagueLabel.fontName = "Galmuri11-Bold"
+                leagueLabel.fontSize = 10
+                leagueLabel.fontColor = .white
+                leagueLabel.verticalAlignmentMode = .center
+                leagueLabel.position = CGPoint(x: 268, y: rowY)
+                let badge = SKShapeNode(rectOf: CGSize(width: 44, height: 18), cornerRadius: 9)
+                badge.fillColor = leagueColor(league)
+                badge.strokeColor = .clear
+                badge.position = leagueLabel.position
+                badge.zPosition = -1
+                addChild(badge)
+                addChild(leagueLabel)
+            }
+        }
+        DebugLogger.shared.feature("게임", "랭킹 화면 표시됨", meta: ["myRank": data.my_rank ?? -1, "rows": top.count])
     }
 
     private func loadArchive() async {
@@ -742,7 +838,7 @@ final class GameScene: SKScene {
             case "quickplay": handleQuickPlayRequest()
             case "archive": Task { await loadArchive() }
             case "review": loadReview()
-            case "ranking": openRanking()
+            case "ranking": Task { await loadRanking() }
             default: break
             }
         case .archive:
@@ -754,6 +850,11 @@ final class GameScene: SKScene {
                 if name.hasPrefix("ep_"), let id = Int(name.dropFirst(3)) {
                     openEpisode(id)
                 }
+            }
+        case .ranking:
+            switch name {
+            case "rank_retry": Task { await loadRanking() }
+            default: break
             }
         case .scene:
             if name == "next" {
@@ -855,5 +956,14 @@ func leagueName(_ league: String) -> String {
     case "gold": return "골드"
     case "diamond": return "다이아몬드"
     default: return "브론즈"
+    }
+}
+
+func leagueColor(_ league: String) -> SKColor {
+    switch league {
+    case "silver": return SKColor(hex: 0x9AA5B1)
+    case "gold": return SKColor(hex: 0xE8B339)
+    case "diamond": return SKColor(hex: 0x4A9FE8)
+    default: return SKColor(hex: 0xB08D57)
     }
 }
