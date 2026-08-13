@@ -1,0 +1,30 @@
+# Wordville Server — Render Blueprint 배포 설정
+# 사용법: Render 대시보드 → New → Blueprint → 이 저장소 연결
+# 참고: ZEN_API_KEY, DATABASE_URL, JWT_SECRET 등은 Render 시크릿으로 직접 입력
+services:
+  - type: web
+    name: wordville-server
+    runtime: node
+    plan: free
+    buildCommand: npm install --prefix server && npm run build --prefix server
+    startCommand: node server/dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEPLOY_TARGET
+        value: render
+      - key: PORT
+        value: 10000
+      - key: DEBUG_LOGS
+        value: "false"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: DATABASE_URL
+        sync: false
+      - key: ZEN_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
