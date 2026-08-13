@@ -5,6 +5,7 @@ import { logger } from './logger.js';
 import { healthRouter } from './routes/health.js';
 import { debugRouter } from './routes/debug.js';
 import { usersRouter } from './routes/users.js';
+import { gameRouter } from './routes/game.js';
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(healthRouter);
 app.use(debugRouter);
 app.use(usersRouter);
+app.use(gameRouter);
 
 app.get('/', (_req, res) => {
   res.json({ ok: true, data: { service: 'wordville-server', docs: '/health' } });
