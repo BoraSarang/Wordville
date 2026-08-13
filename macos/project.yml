@@ -18,12 +18,18 @@ targets:
     sources:
       - Sources
       - Resources
+    info:
+      path: Info.plist
+      properties:
+        CFBundleIconFile: AppIcon
+        LSApplicationCategoryType: public.app-category.education
+        NSApplicationSupportsSecureRestorableState: true
+        NSPrincipalClass: NSApplication
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.borasarang.wordville
         PRODUCT_NAME: Wordville
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
         ENABLE_HARDENED_RUNTIME: NO
         SWIFT_STRICT_CONCURRENCY: minimal
     scheme:
