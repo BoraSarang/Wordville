@@ -12,58 +12,68 @@ struct RankingView: View {
         VStack(spacing: 0) {
             header
             Divider()
-            if let errorMessage {
-                ContentUnavailableView("랭킹을 불러오지 못했습니다", systemImage: "wifi.exclamationmark", description: Text(errorMessage))
-            } else if loading {
-                ProgressView("로딩 중…")
-                    .frame(maxHeight: .infinity)
-            } else if let ranking, ranking.rankings.isEmpty {
-                ContentUnavailableView("아직 순위가 없습니다", systemImage: "trophy", description: Text("주간 점수를 쌓아 랭킹에 올라보세요!"))
-            } else if let ranking {
-                List {
-                    if let myRank = ranking.my_rank {
-                        Section {
-                            HStack {
-                                Text("\(myRank)위")
-                                    .font(.headline).monospacedDigit()
-                                    .frame(width: 44, alignment: .leading)
-                                Text(settings.profile?.nickname ?? settings.nickname)
-                                    .font(.headline)
-                                Spacer()
-                                LeagueBadge(league: settings.league)
-                                Text("나")
-                                    .font(.caption2).bold()
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.accentColor, in: Capsule())
-                            }
-                        }
-                    }
-                    Section("Top \(ranking.rankings.count)") {
-                        ForEach(Array(ranking.rankings.enumerated()), id: \.element.id) { index, entry in
-                            HStack {
-                                Text("\(index + 1)")
-                                    .font(.body.monospacedDigit())
-                                    .foregroundStyle(index < 3 ? .orange : .secondary)
-                                    .frame(width: 44, alignment: .leading)
-                                Text(entry.nickname)
-                                    .lineLimit(1)
-                                Spacer()
-                                LeagueBadge(league: entry.league ?? "bronze")
-                                Text("\(entry.score ?? 0)점")
-                                    .font(.body.monospacedDigit())
-                                    .foregroundStyle(.secondary)
-                            }
+            content
+        }
+        .frame(width: 360)
+        .frame(maxHeight: .infinity)
+        .task {
+            await load()
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let errorMessage {
+            ContentUnavailableView("랭킹을 불러오지 못했습니다", systemImage: "wifi.exclamationmark", description: Text(errorMessage))
+        } else if loading {
+            ProgressView("로딩 중…")
+                .frame(maxHeight: .infinity)
+        } else if let ranking, ranking.rankings.isEmpty {
+            ContentUnavailableView("아직 순위가 없습니다", systemImage: "trophy", description: Text("주간 점수를 쌓아 랭킹에 올라보세요!"))
+        } else if let ranking {
+            List {
+                if let myRank = ranking.my_rank {
+                    Section {
+                        HStack(spacing: 8) {
+                            Text("\(myRank)위")
+                                .font(.headline).monospacedDigit()
+                                .frame(width: 40, alignment: .leading)
+                            Text(settings.profile?.nickname ?? settings.nickname)
+                                .font(.headline)
+                                .lineLimit(1)
+                                .layoutPriority(1)
+                            Spacer(minLength: 4)
+                            LeagueBadge(league: settings.league)
+                            Text("나")
+                                .font(.caption2).bold()
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.accentColor, in: Capsule())
                         }
                     }
                 }
-                .listStyle(.inset)
+                Section("Top \(ranking.rankings.count)") {
+                    ForEach(Array(ranking.rankings.enumerated()), id: \.element.id) { index, entry in
+                        HStack(spacing: 8) {
+                            Text("\(index + 1)")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(index < 3 ? .orange : .secondary)
+                                .frame(width: 24, alignment: .leading)
+                            Text(entry.nickname)
+                                .lineLimit(1)
+                                .layoutPriority(1)
+                            Spacer(minLength: 4)
+                            LeagueBadge(league: entry.league ?? "bronze")
+                            Text("\(entry.score ?? 0)점")
+                                .font(.body.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
             }
-        }
-        .frame(width: 420, height: 460)
-        .task {
-            await load()
+            .listStyle(.inset)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 

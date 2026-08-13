@@ -106,6 +106,19 @@ struct QuickQuestion: Codable {
     let episode_title: String?
 }
 
+struct EpisodeSummary: Codable, Identifiable {
+    let id: Int
+    let episode_date: String
+    let category: String
+    let title: String
+    let played: Bool
+}
+
+struct ReviewEpisode: Codable {
+    let title: String
+    let questions: [Question]
+}
+
 struct QuestionsResponse: Codable {
     let episode_id: Int
     let questions: [Question]

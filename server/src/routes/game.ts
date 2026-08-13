@@ -28,6 +28,61 @@ function leagueOf(exp: number): string {
   return 'bronze';
 }
 
+// GET /episodes — 에피소드 아카이브 목록 (날짜 내림차순 + 플레이 여부)
+gameRouter.get('/episodes', authMiddleware, async (req, res) => {
+  const { userId } = req as AuthedRequest;
+  logger.feature('episodes.list', '진입', { userId });
+  const r = await pool.query(
+    `SELECT e.id, to_char(e.episode_date, 'YYYY-MM-DD') AS episode_date, e.category, e.title,
+            EXISTS(SELECT 1 FROM questions q JOIN answers a ON a.question_id = q.id
+                   WHERE q.episode_id = e.id AND a.user_id = $1 AND a.is_correct) AS played
+     FROM episodes e ORDER BY e.episode_date DESC LIMIT 30`,
+    [userId],
+  );
+  logger.feature('episodes.list', '완료', { count: r.rowCount });
+  res.json({
+    ok: true,
+    data: r.rows.map((row: any) => ({ ...row, id: Number(row.id), played: Boolean(row.played) })),
+  });
+});
+
+// GET /episodes/review — 오답 복습 (틀린 유형 문제 우선 5개, 부족분 랜덤)
+gameRouter.get('/episodes/review', authMiddleware, async (req, res) => {
+  const { userId } = req as AuthedRequest;
+  logger.feature('episodes.review', '진입', { userId });
+  const wrong = await pool.query(
+    `SELECT rule_key FROM wrong_embeddings
+     WHERE user_id = $1 ORDER BY wrong_count DESC, last_wrong_at DESC LIMIT 5`,
+    [userId],
+  );
+  const keys = wrong.rows.map((r: any) => r.rule_key);
+  let rows: any[] = [];
+  if (keys.length > 0) {
+    const r = await pool.query(
+      `SELECT q.id, q.scene_index, q.narrative, q.choices, q.explanation
+       FROM questions q WHERE q.rule_key = ANY($1) ORDER BY random() LIMIT 5`,
+      [keys],
+    );
+    rows = r.rows;
+  }
+  if (rows.length < 5) {
+    const r = await pool.query(
+      `SELECT q.id, q.scene_index, q.narrative, q.choices, q.explanation
+       FROM questions q ORDER BY random() LIMIT $1`,
+      [5 - rows.length],
+    );
+    rows = [...rows, ...r.rows];
+  }
+  logger.feature('episodes.review', '완료', { count: rows.length, wrong_keys: keys });
+  res.json({
+    ok: true,
+    data: {
+      title: '오답 복습',
+      questions: rows.map((q: any) => ({ ...q, id: Number(q.id) })),
+    },
+  });
+});
+
 // GET /episodes/today — 오늘의 에피소드 (문제 미포함)
 gameRouter.get('/episodes/today', authMiddleware, async (_req, res) => {
   logger.feature('episodes.today', '진입');

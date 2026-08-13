@@ -107,6 +107,20 @@ final class APIClient {
         return data
     }
 
+    func fetchEpisodeList() async throws -> [EpisodeSummary] {
+        let r: APIResponse<[EpisodeSummary]> = try await request("/episodes")
+        guard let data = r.data else { throw APIError.network }
+        DebugLogger.shared.feature("APIClient", "에피소드 목록 로드", meta: ["count": data.count])
+        return data
+    }
+
+    func fetchReviewQuestions() async throws -> ReviewEpisode {
+        let r: APIResponse<ReviewEpisode> = try await request("/episodes/review")
+        guard let data = r.data else { throw APIError.network }
+        DebugLogger.shared.feature("APIClient", "복습 문제 로드", meta: ["count": data.questions.count])
+        return data
+    }
+
     // MARK: - 게임 데이터
 
     func fetchTodayEpisode() async throws -> Episode {

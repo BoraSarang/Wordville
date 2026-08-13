@@ -1,17 +1,17 @@
 // GameScene — SpriteKit 게임 루프 (DESIGN.md 1.2 상태 머신)
-// BOOT → TITLE → SCENE(지문) → QUESTION → RESULT_CORRECT/WRONG → SCENE / EPISODE_CLEAR
+// SPLASH → SELECTION → ARCHIVE / SCENE(지문) → QUESTION → RESULT_CORRECT/WRONG → SCENE / EPISODE_CLEAR
 // 팔레트 (DESIGN.md 1.4): 크림 #FFF6E9 / 연두 #A8D672 / 복숭아 #FFB48A / 하늘 #8EC9F5 / 갈색 #5B4636
 import SpriteKit
 
 enum GameState {
-    case title, scene, question, resultCorrect, resultWrong, clear
+    case splash, selection, archive, scene, question, resultCorrect, resultWrong, clear
 }
 
 final class GameScene: SKScene {
     static let canvasW: CGFloat = 360
     static let canvasH: CGFloat = 780
 
-    private var state: GameState = .title
+    private var state: GameState = .splash
     private var sceneIndex = 0
     private var questions: [Question] = []
     private var correctCount = 0
@@ -19,6 +19,12 @@ final class GameScene: SKScene {
     private var combo = 0
     private var episodeTitle = ""
     private var quickPlay = false
+
+    // 아카이브
+    private var archiveList: [EpisodeSummary] = []
+    private var archivePage = 0
+    private var archiveError = false
+    private let archivePageSize = 6
 
     // 노드
     private var dialogLabel: SKLabelNode!
@@ -48,10 +54,9 @@ final class GameScene: SKScene {
         questions = GameData.demoQuestions
         episodeTitle = GameData.demoEpisode.title
         buildBackground()
-        showTitle()
-        DebugLogger.shared.feature("게임", "씬 로드 — title", meta: ["questions": questions.count])
+        showSplash()
+        DebugLogger.shared.feature("게임", "씬 로드 — splash", meta: ["questions": questions.count])
         NotificationCenter.default.addObserver(self, selector: #selector(handleQuickPlayRequest), name: .quickPlayRequest, object: nil)
-        Task { await loadRemoteEpisode() }
         Task { await SettingsStore.shared.refreshProfile() }
     }
 
@@ -80,28 +85,6 @@ final class GameScene: SKScene {
     }
 
     // MARK: - 서버 연동
-
-    private func loadRemoteEpisode() async {
-        do {
-            _ = try await APIClient.shared.ensureAuth()
-            let episode = try await APIClient.shared.fetchTodayEpisode()
-            let remoteQuestions = try await APIClient.shared.fetchQuestions(episodeId: episode.id)
-            await MainActor.run {
-                questions = remoteQuestions
-                episodeTitle = episode.title
-                correctCount = 0
-                totalExp = 0
-                combo = 0
-                DebugLogger.shared.feature("게임", "서버 에피소드 로드됨", meta: ["title": episode.title, "questions": remoteQuestions.count])
-                if state == .title {
-                    clearLayers()
-                    showTitle()
-                }
-            }
-        } catch {
-            DebugLogger.shared.log(.warn, "게임", "서버 로드 실패 — 데모 데이터 사용", meta: ["error": String(describing: error)])
-        }
-    }
 
     // MARK: - 배경
 
@@ -160,30 +143,217 @@ final class GameScene: SKScene {
         choiceButtons.removeAll()
     }
 
-    // MARK: - TITLE
+    // MARK: - SPLASH
 
-    private func showTitle() {
-        state = .title
+    private func showSplash() {
+        state = .splash
         clearLayers()
-        let title = makeLabel("글마을 달인", size: 34, color: palette.brown)
-        title.position = CGPoint(x: Self.canvasW / 2, y: 620)
+        let logo = makeLabel("📖", size: 64, color: palette.brown, font: .emoji)
+        logo.position = CGPoint(x: Self.canvasW / 2, y: 500)
+        addChild(logo)
+        let title = makeLabel("글마을 달인", size: 36, color: palette.brown)
+        title.position = CGPoint(x: Self.canvasW / 2, y: 400)
         addChild(title)
-
-        let sub = makeLabel("오늘의 에피소드: \(episodeTitle)", size: 16, color: palette.brown, font: .body)
-        sub.position = CGPoint(x: Self.canvasW / 2, y: 560)
+        let sub = makeLabel("매일 오는 맞춤법 여행", size: 16, color: palette.brown, font: .body)
+        sub.position = CGPoint(x: Self.canvasW / 2, y: 350)
         addChild(sub)
+        let loading = makeLabel("불러오는 중…", size: 13, color: palette.brown.withAlphaComponent(0.6), font: .body)
+        loading.position = CGPoint(x: Self.canvasW / 2, y: 280)
+        addChild(loading)
+        DebugLogger.shared.feature("게임", "스플래시 표시됨")
+        Task {
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            if state == .splash {
+                showSelection()
+            }
+        }
+    }
+
+    // MARK: - SELECTION (게임 선택 화면)
+
+    private func showSelection() {
+        state = .selection
+        clearLayers()
+        let title = makeLabel("글마을 달인", size: 30, color: palette.brown)
+        title.position = CGPoint(x: Self.canvasW / 2, y: 660)
+        addChild(title)
 
         let settings = SettingsStore.shared
         let badge = makeLabel("Lv.\(settings.level) · 🔥\(settings.streakDays)일 연속 · EXP \(settings.exp)", size: 14, color: palette.brown, font: .body)
-        badge.position = CGPoint(x: Self.canvasW / 2, y: 505)
+        badge.position = CGPoint(x: Self.canvasW / 2, y: 610)
         addChild(badge)
 
-        let start = makeButton(width: 220, height: 64, color: palette.green, name: "start")
-        start.position = CGPoint(x: Self.canvasW / 2, y: 440)
-        addChild(start)
-        let startLabel = makeLabel("에피소드 시작", size: 22, color: .white)
-        startLabel.position = start.position
-        addChild(startLabel)
+        makeMenuButton(name: "episode_today", color: palette.green, title: "오늘의 에피소드", subtitle: "오늘의 스토리 5문제 · EXP + 스트릭", y: 540)
+        makeMenuButton(name: "quickplay", color: palette.sky, title: "퀵플레이", subtitle: "1문제 · 틀린 유형 우선 출제", y: 450)
+        makeMenuButton(name: "archive", color: palette.peach, title: "과거 에피소드", subtitle: "지난 스토리 다시 보기 (22개)", y: 360)
+        makeMenuButton(name: "review", color: SKColor(hex: 0xB8A88A), title: "오답 복습", subtitle: "몬스터 사냥 · 틀린 유형만", y: 270)
+        DebugLogger.shared.feature("게임", "선택 화면 표시됨")
+    }
+
+    private func makeMenuButton(name: String, color: SKColor, title: String, subtitle: String, y: CGFloat) {
+        let btn = makeButton(width: 280, height: 62, color: color, name: name)
+        btn.position = CGPoint(x: Self.canvasW / 2, y: y)
+        addChild(btn)
+        let titleLabel = makeLabel(title, size: 19, color: .white)
+        titleLabel.position = CGPoint(x: Self.canvasW / 2, y: y + 10)
+        addChild(titleLabel)
+        let subLabel = makeLabel(subtitle, size: 11, color: .white.withAlphaComponent(0.9), font: .body)
+        subLabel.position = CGPoint(x: Self.canvasW / 2, y: y - 14)
+        addChild(subLabel)
+    }
+
+    // MARK: - ARCHIVE (과거 에피소드 목록)
+
+    private func loadArchive() async {
+        do {
+            _ = try await APIClient.shared.ensureAuth()
+            let list = try await APIClient.shared.fetchEpisodeList()
+            await MainActor.run {
+                archiveList = list
+                archiveError = false
+                archivePage = 0
+                showArchive()
+            }
+        } catch {
+            DebugLogger.shared.log(.warn, "게임", "아카이브 로드 실패", meta: ["error": String(describing: error)])
+            await MainActor.run {
+                archiveError = true
+                showArchive()
+            }
+        }
+    }
+
+    private func showArchive() {
+        state = .archive
+        clearLayers()
+        makeCancelButton()
+        let title = makeLabel("과거 에피소드", size: 22, color: palette.brown)
+        title.position = CGPoint(x: Self.canvasW / 2, y: 700)
+        addChild(title)
+
+        guard !archiveList.isEmpty else {
+            let msg = makeLabel(archiveError ? "불러오지 못했습니다. 다시 시도해 주세요." : "불러오는 중…", size: 15, color: palette.brown, font: .body)
+            msg.position = CGPoint(x: Self.canvasW / 2, y: 420)
+            addChild(msg)
+            if archiveError {
+                let retry = makeButton(width: 160, height: 44, color: palette.sky, name: "archive_retry")
+                retry.position = CGPoint(x: Self.canvasW / 2, y: 360)
+                addChild(retry)
+                let retryLabel = makeLabel("다시 시도", size: 16, color: .white)
+                retryLabel.position = retry.position
+                addChild(retryLabel)
+            }
+            return
+        }
+
+        let totalPages = Int(ceil(Double(archiveList.count) / Double(archivePageSize)))
+        let pageLabel = makeLabel("\(archivePage + 1) / \(totalPages)", size: 13, color: palette.brown, font: .body)
+        pageLabel.position = CGPoint(x: Self.canvasW / 2, y: 655)
+        addChild(pageLabel)
+
+        let startIdx = archivePage * archivePageSize
+        let pageItems = Array(archiveList[startIdx..<min(startIdx + archivePageSize, archiveList.count)])
+        for (i, ep) in pageItems.enumerated() {
+            let y = 580 - CGFloat(i) * 78
+            let row = makeButton(width: 300, height: 62, color: ep.played ? SKColor(hex: 0xE8DFD0) : .white, name: "ep_\(ep.id)")
+            row.position = CGPoint(x: Self.canvasW / 2, y: y)
+            addChild(row)
+            let dateLabel = makeLabel(shortDate(ep.episode_date), size: 13, color: palette.brown, font: .body)
+            dateLabel.horizontalAlignmentMode = .left
+            dateLabel.position = CGPoint(x: Self.canvasW / 2 - 130, y: y + 14)
+            addChild(dateLabel)
+            let titleLabel = makeLabel(ep.title, size: 13, color: palette.brown, font: .body)
+            titleLabel.horizontalAlignmentMode = .left
+            titleLabel.position = CGPoint(x: Self.canvasW / 2 - 130, y: y - 10)
+            addChild(titleLabel)
+            if ep.played {
+                let done = makeLabel("✅", size: 16, color: .black, font: .emoji)
+                done.position = CGPoint(x: Self.canvasW / 2 + 130, y: y)
+                addChild(done)
+            }
+        }
+
+        if archivePage > 0 {
+            let up = makeButton(width: 44, height: 44, color: palette.sky, name: "archive_up")
+            up.position = CGPoint(x: Self.canvasW / 2 - 60, y: 80)
+            addChild(up)
+            let upLabel = makeLabel("▲", size: 16, color: .white)
+            upLabel.position = up.position
+            addChild(upLabel)
+        }
+        if archivePage < totalPages - 1 {
+            let down = makeButton(width: 44, height: 44, color: palette.sky, name: "archive_down")
+            down.position = CGPoint(x: Self.canvasW / 2 + 60, y: 80)
+            addChild(down)
+            let downLabel = makeLabel("▼", size: 16, color: .white)
+            downLabel.position = down.position
+            addChild(downLabel)
+        }
+        DebugLogger.shared.feature("게임", "아카이브 표시됨", meta: ["page": archivePage, "total": archiveList.count])
+    }
+
+    private func shortDate(_ iso: String) -> String {
+        let parts = iso.split(separator: "-")
+        guard parts.count == 3, let m = Int(parts[1]), let d = Int(parts[2]) else { return iso }
+        return "\(m)/\(d)"
+    }
+
+    private func openEpisode(_ id: Int) {
+        DebugLogger.shared.feature("게임", "아카이브 에피소드 선택", meta: ["episodeId": id])
+        Task {
+            do {
+                _ = try await APIClient.shared.ensureAuth()
+                let qs = try await APIClient.shared.fetchQuestions(episodeId: id)
+                let title = archiveList.first(where: { $0.id == id })?.title ?? "과거 에피소드"
+                await MainActor.run { startEpisode(qs, title: title) }
+            } catch {
+                DebugLogger.shared.log(.warn, "게임", "에피소드 문제 로드 실패", meta: ["error": String(describing: error)])
+            }
+        }
+    }
+
+    // MARK: - 에피소드 시작 공통
+
+    private func startEpisode(_ qs: [Question], title: String) {
+        guard !qs.isEmpty else { return }
+        questions = qs
+        episodeTitle = title
+        quickPlay = false
+        sceneIndex = 0
+        correctCount = 0
+        totalExp = 0
+        combo = 0
+        DebugLogger.shared.feature("게임", "에피소드 시작", meta: ["title": title, "questions": qs.count])
+        showScene(0)
+    }
+
+    private func startTodayEpisode() {
+        DebugLogger.shared.feature("게임", "오늘의 에피소드 선택됨")
+        Task {
+            do {
+                _ = try await APIClient.shared.ensureAuth()
+                let episode = try await APIClient.shared.fetchTodayEpisode()
+                let qs = try await APIClient.shared.fetchQuestions(episodeId: episode.id)
+                await MainActor.run { startEpisode(qs, title: episode.title) }
+            } catch {
+                DebugLogger.shared.log(.warn, "게임", "오늘 에피소드 로드 실패 — 데모 폴백", meta: ["error": String(describing: error)])
+                await MainActor.run { startEpisode(GameData.demoQuestions, title: GameData.demoEpisode.title) }
+            }
+        }
+    }
+
+    private func loadReview() {
+        DebugLogger.shared.feature("게임", "오답 복습 선택됨")
+        Task {
+            do {
+                _ = try await APIClient.shared.ensureAuth()
+                let review = try await APIClient.shared.fetchReviewQuestions()
+                await MainActor.run { startEpisode(review.questions, title: review.title) }
+            } catch {
+                DebugLogger.shared.log(.warn, "게임", "복습 로드 실패 — 데모 폴백", meta: ["error": String(describing: error)])
+                await MainActor.run { startEpisode(GameData.demoQuestions, title: "오답 복습") }
+            }
+        }
     }
 
     private func makeCancelButton() {
@@ -551,16 +721,31 @@ final class GameScene: SKScene {
         }
 
         if name == "cancel" {
-            DebugLogger.shared.feature("게임", "취소됨 (타이틀로 복귀)", meta: ["state": String(describing: state)])
-            showTitle()
+            DebugLogger.shared.feature("게임", "취소됨 (선택 화면으로 복귀)", meta: ["state": String(describing: state)])
+            showSelection()
             return
         }
 
         switch state {
-        case .title:
-            if name == "start" {
-                DebugLogger.shared.feature("게임", "에피소드 시작됨")
-                showScene(0)
+        case .splash:
+            break
+        case .selection:
+            switch name {
+            case "episode_today": startTodayEpisode()
+            case "quickplay": handleQuickPlayRequest()
+            case "archive": Task { await loadArchive() }
+            case "review": loadReview()
+            default: break
+            }
+        case .archive:
+            switch name {
+            case "archive_retry": Task { await loadArchive() }
+            case "archive_up": archivePage = max(0, archivePage - 1); showArchive()
+            case "archive_down": archivePage += 1; showArchive()
+            default:
+                if name.hasPrefix("ep_"), let id = Int(name.dropFirst(3)) {
+                    openEpisode(id)
+                }
             }
         case .scene:
             if name == "next" {
@@ -580,7 +765,7 @@ final class GameScene: SKScene {
             if name == "next_scene" {
                 if quickPlay {
                     quickPlay = false
-                    showTitle()
+                    showSelection()
                     return
                 }
                 let nextIndex = sceneIndex + 1
@@ -599,7 +784,7 @@ final class GameScene: SKScene {
                 correctCount = 0
                 totalExp = 0
                 combo = 0
-                showTitle()
+                showSelection()
             }
         }
     }

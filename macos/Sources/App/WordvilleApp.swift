@@ -32,7 +32,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.applyActivationPolicy()
         debugPanel.setup()
         gameWindow.show()
-        NotificationManager.shared.syncWithSetting(SettingsStore.shared.notificationsEnabled)
+        // 알림 권한은 앱이 활성화된 뒤 요청 (첫 실행 시 UNErrorNotAllowed 방지)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            NotificationManager.shared.syncWithSetting(SettingsStore.shared.notificationsEnabled)
+        }
         startOfflineQueueSync()
         DebugLogger.shared.feature("앱", "시작됨 (메뉴바 + 게임 윈도우)")
     }
