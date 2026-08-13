@@ -1,0 +1,5 @@
+=== defaults (com.borasarang.wordville) ===
+{
+    authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwNzIxYWViZC1kYWRhLTQ4ZTAtOTNlZi0wZjZlZTFkNGY1MmUiLCJpYXQiOjE3ODY1OTY5MDAsImV4cCI6MTc4OTE4ODkwMH0.5sSiFPiztwsGasNHnKNujqZBYEOHeoxEA5ma6E0G00M";
+    uuid = "5710dc6c-a026-463b-a6a2-2b032f355367";
+}

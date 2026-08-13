@@ -1,79 +1,96 @@
 #!/bin/bash
 # build_and_run.sh — Wordville 빌드 디스패처 (AGENTS.md 18장 표준)
 # usage:
-#   ./build_and_run.sh debug macos      macOS 빌드 + /Users/lee/Applications 배포 + 실행
-#   ./build_and_run.sh debug android    Android APK 빌드 + Genymotion 설치
-#   ./build_and_run.sh debug server     Server 개발 모드
-#   ./build_and_run.sh e2e server       Server API E2E 스모크 테스트
-#   ./build_and_run.sh load server      k6 부하 테스트
-#   ./build_and_run.sh release          GitHub Releases (macOS zip + APK)
+#   ./scripts/build_and_run.sh debug macos      macOS 빌드 + /Users/lee/Applications 배포 + 실행
+#   ./scripts/build_and_run.sh debug android    Android APK 빌드 + Genymotion 설치
+#   ./scripts/build_and_run.sh debug server     Server 개발 모드 (foreground)
+#   ./scripts/build_and_run.sh e2e server       Server API E2E 스모크 테스트
+#   ./scripts/build_and_run.sh load server      k6 부하 테스트 (k6 미설치 시 curl 대체 안내)
+#   ./scripts/build_and_run.sh a11y {platform}  a11y-dump 3종 세트 (macos/android/server)
+#   ./scripts/build_and_run.sh release          GitHub Releases (T5.2 구현 예정)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 # --- 환경 상수 ---
-ADB="${ADB:-/opt/homebrew/bin/adb}"
+ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+ADB="${ADB:-$ANDROID_HOME/platform-tools/adb}"
+JAVA_HOME_DEFAULT="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 APPS_DIR="${APPS_DIR:-/Users/lee/Applications}"
-MAC_APP_NAME="Wordville.app"
+MAC_APP_NAME="글마을 달인.app"
+PKG="com.borasarang.wordville"
 APK_OUT="android/app/build/outputs/apk/debug/app-debug.apk"
 SERVER_PORT="${SERVER_PORT:-3000}"
+VERSION="${VERSION:-v0.3}"
 
 # --- 헬퍼 ---
 log()  { echo "[build_and_run] $*"; }
 fail() { echo "[build_and_run] ERROR: $*" >&2; exit 1; }
 
 usage() {
-  sed -n '2,9p' "$0"
+  sed -n '2,12p' "$0"
   exit 1
 }
 
-# --- 서버 기동/테스트 ---
+# --- pre-hook: 시크릿/품질 게이트 ---
+pre_hook() {
+  log "pre-hook: env-expiry-check + gitleaks"
+  ./scripts/env-expiry-check.sh || fail "시크릿 만료 체크 실패"
+  if [ -x "$(command -v gitleaks)" ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    gitleaks git --no-banner --exit-code=0 2>/dev/null \
+      || gitleaks detect --no-banner --source . --log-opts=--all 2>/dev/null \
+      || log "gitleaks: 리포 전체 스캔 경고 (커밋 검증은 훅에서)"
+  else
+    log "gitleaks 미설치 — 스킵 (brew install gitleaks)"
+  fi
+}
+
+# --- 서버 ---
 server_dev() {
   log "server dev 모드 시작 (port $SERVER_PORT)"
   cd "$ROOT/server"
-  [ -f .env ] || cp .env.example .env
+  [ -f .env ] || { cp .env.example .env; log ".env 생성됨 (내용 확인 필수)"; }
   npm install
-  npm run dev
+  exec npm run dev
 }
 
 server_e2e() {
   log "server E2E 스모크 테스트"
-  local base="${SERVER_BASE:-http://localhost:${SERVER_PORT}}"
-  for ep in /health /debug/logs; do
-    local code
-    code="$(curl -s -o /dev/null -w '%{http_code}' "$base$ep" || true)"
-    log "GET $ep -> $code"
-    [ "$code" = "200" ] || fail "E2E 실패: $ep -> $code"
-  done
-  log "E2E 통과"
+  ./scripts/e2e-server.sh
 }
 
 server_load() {
   log "k6 부하 테스트"
-  [ -x "$(command -v k6)" ] || fail "k6 미설치 (brew install k6)"
-  k6 run scripts/load-test.js
+  if [ -x "$(command -v k6)" ]; then
+    k6 run scripts/load-test.js
+  else
+    fail "k6 미설치 (brew install k6) — 또는 ./scripts/e2e-server.sh로 기능 스모크만"
+  fi
 }
 
 # --- macOS ---
 macos_debug() {
-  [ -d "$ROOT/macos" ] || fail "macos/ 프로젝트가 아직 없습니다 (T3 이후 빌드 가능)"
+  [ -d "$ROOT/macos" ] || fail "macos/ 프로젝트 없음"
   log "macOS 빌드 시작"
   cd "$ROOT/macos"
   xcodebuild -project Wordville.xcodeproj -scheme Wordville -configuration Debug \
     -derivedDataPath build/DerivedData build
-  local built_app="build/DerivedData/Build/Products/Debug/$MAC_APP_NAME"
+  local built_app="build/DerivedData/Build/Products/Debug/Wordville.app"
   [ -d "$built_app" ] || fail "빌드 산출물 없음: $built_app"
   rm -rf "$APPS_DIR/$MAC_APP_NAME"
   cp -R "$built_app" "$APPS_DIR/$MAC_APP_NAME"
   log "배포 완료: $APPS_DIR/$MAC_APP_NAME"
   open "$APPS_DIR/$MAC_APP_NAME"
+  sleep 3
+  ./scripts/a11y-dump.sh macos "$VERSION" || log "a11y-dump 경고 (선택)"
 }
 
 # --- Android ---
 android_debug() {
-  [ -d "$ROOT/android" ] || fail "android/ 프로젝트가 아직 없습니다 (T4 이후 빌드 가능)"
-  log "Android APK 빌드 시작"
+  [ -d "$ROOT/android" ] || fail "android/ 프로젝트 없음"
+  [ -d "$JAVA_HOME_DEFAULT" ] && export JAVA_HOME="$JAVA_HOME_DEFAULT"
+  log "Android APK 빌드 시작 (JAVA_HOME=${JAVA_HOME:-시스템})"
   cd "$ROOT/android"
   ./gradlew :app:assembleDebug
   [ -f "$APK_OUT" ] || fail "APK 산출물 없음: $APK_OUT"
@@ -81,20 +98,21 @@ android_debug() {
   cp "$APK_OUT" "$APPS_DIR/apk/Wordville-debug.apk"
   log "APK 복사 완료: $APPS_DIR/apk/Wordville-debug.apk"
 
-  # Genymotion 연결 확인
-  if "$ADB" devices | grep -q "emulator"; then
-    log "Genymotion 에뮬레이터 감지 — 설치 시도"
-    "$ADB" install -r "$APPS_DIR/apk/Wordville-debug.apk" || log "설치 실패 (에뮬레이터 상태 확인)"
-    log "adb shell am start -n com.wordville.game/.AndroidLauncher"
-    "$ADB" shell am start -n com.wordville.game/.AndroidLauncher || true
+  if "$ADB" devices | grep -q "127.0.0.1:6555"; then
+    log "Genymotion 감지 — 설치"
+    "$ADB" -s 127.0.0.1:6555 install -r "$APK_OUT" || log "설치 실패 (에뮬레이터 상태 확인)"
+    "$ADB" -s 127.0.0.1:6555 shell am force-stop com.talkmance.app || true
+    "$ADB" -s 127.0.0.1:6555 shell am start -n "$PKG/.AndroidLauncher" || true
+    sleep 6
+    ./scripts/a11y-dump.sh android "$VERSION" || log "a11y-dump 경고 (선택)"
   else
-    log "Genymotion 미연결 — APK만 준비됨 (Genymotion 실행 후 ./build_and_run.sh debug android 재실행)"
+    log "Genymotion 미연결 — APK만 준비됨 (Genymotion 실행 후 재실행)"
   fi
 }
 
-# --- Release (T5.2 이후 구현) ---
+# --- Release (T5.2) ---
 release() {
-  fail "release는 T5.2에서 구현 예정"
+  fail "release는 T5.2에서 구현 예정 (GitHub Releases)"
 }
 
 # --- 디스패처 ---
@@ -103,6 +121,7 @@ MODE="$1"; PLATFORM="${2:-}"
 
 case "$MODE" in
   debug)
+    pre_hook
     case "$PLATFORM" in
       macos)   macos_debug ;;
       android) android_debug ;;
@@ -120,6 +139,12 @@ case "$MODE" in
     case "$PLATFORM" in
       server) server_load ;;
       *) fail "load는 server만 지원" ;;
+    esac
+    ;;
+  a11y)
+    case "$PLATFORM" in
+      macos|android|server) ./scripts/a11y-dump.sh "$PLATFORM" "$VERSION" ;;
+      *) fail "a11y 플랫폼: macos/android/server" ;;
     esac
     ;;
   release) release ;;

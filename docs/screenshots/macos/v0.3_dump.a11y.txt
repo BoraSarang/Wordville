@@ -1,0 +1,9 @@
+=== Wordville a11y dump (macOS, 2026-08-13 18:24:41) ===
+--- 프로세스 ---
+22580 node /Users/lee/Documents/Apps/Wordville/server/node_modules/.bin/tsx src/index.ts
+22581 /Users/lee/.nvm/versions/node/v22.23.1/bin/node --require /Users/lee/Documents/Apps/Wordville/server/node_modules/tsx/dist/preflight.cjs --import file:///Users/lee/Documents/Apps/Wordville/server/node_modules/tsx/dist/loader.mjs src/index.ts
+22584 /Users/lee/Documents/Apps/Wordville/server/node_modules/@esbuild/darwin-arm64/bin/esbuild --service=0.28.2 --ping
+30979 /Users/lee/Applications/글마을 달인.app/Contents/MacOS/Wordville
+99212 chrome-devtools-mcp NVM_INC=/Users/lee/.nvm/versions/node/v22.23.1/include/node NODE=/Users/lee/.nvm/versions/node/v22.23.1/bin/node INIT_CWD=/Users/lee/Documents/Apps/Wordville OLLAMA_CONTEXT_LENGTH=16384 NVM_CD_FLAGS=-q SHELL=/bin/zsh
+--- 앱 실행 상태 ---
+ Wordville

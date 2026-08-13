@@ -1,0 +1,7 @@
+=== Wordville a11y dump (2026-08-13 18:24:47) ===
+--- 포커스 ---
+  mCurrentFocus=Window{7dd27e8 u0 com.talkmance.app/com.talkmance.app.MainActivity}
+  mFocusedApp=ActivityRecord{864dad9 u0 com.talkmance.app/.MainActivity t44}
+--- 앱 로그 (Wordville) ---
+--- 액티비티 상태 ---
+    topResumedActivity=ActivityRecord{864dad9 u0 com.talkmance.app/.MainActivity t44}

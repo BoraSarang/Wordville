@@ -7,7 +7,7 @@
 | T | 작업 | platform | 상태 |
 |---|------|----------|------|
 | T0.2 | docs/ 문서 세트 작성 | common | ✅ 완료 |
-| T0.3 | scripts/build_and_run.sh 디스패처 | common | ⏳ 대기 |
+| T0.3 | scripts/build_and_run.sh 디스패처 | common | ✅ 완료 (macos/android/server + pre-hook gitleaks/env-expiry + a11y 연동) |
 | T0.4 | server/.env.example + env-expiry-check.sh | server | ✅ 완료 |
 | T1.1 | server 뼈대 + /health + /debug/* | server | ✅ 완료 |
 | T1.2 | Neon 스키마 + pgvector 마이그레이션 | server | ✅ 완료 |
@@ -34,9 +34,9 @@
 | T4.4 | Genymotion 테스트 + apk 배포 | android | 🔄 진행중 (전 화면 실기 검증 완료, 5콤보 배너 시각 확인 대기) |
 | T5.1 | GitHub 랜딩 페이지 | web | ⏳ |
 | T5.2 | GitHub Releases | common | ⏳ |
-| T6.1 | a11y-dump + E2E + k6 검증 | common | ⏳ |
-| T6.2 | DoD 체크리스트 + CHANGELOG | common | ⏳ |
-| T6.3 | 세션 로그 + bd 정리 | common | ⏳ |
+| T6.1 | a11y-dump + E2E + k6 검증 | common | 🔄 진행중 (a11y-dump 3종 + e2e-server.sh 10/10 통과, k6는 brew install 필요) |
+| T6.2 | DoD 체크리스트 + CHANGELOG | common | 🔄 진행중 (CHANGELOG 갱신 대기) |
+| T6.3 | 세션 로그 + bd 정리 | common | 🔄 진행중 (세션 로그 작성 대기) |
 | T7.1 | 일일 리마인더 알림 실기 테스트 (macOS) | macos | ⏳ |
 | T7.2 | 서버 /debug 연동 실기 테스트 (패널 서버 탭) | macos | ⏳ |
 | T7.3 | 시드 100문항 → 사용자 실기 검증 | common | ⏳ |

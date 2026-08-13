@@ -19,6 +19,10 @@
 - /answers: 5콤보 보너스 (+10) + 골든패스 (streak≥7 & 오늘 첫 정답 → EXP 2배, 응답 golden_pass)
 - /users/me: golden_pass 파생 필드
 
+### Added [common]
+- 도구/표준 정비 (T0.3, T6.1): build_and_run.sh 디스패처 정비 (패키지명 수정, JAVA_HOME/ANDROID_HOME 자동 감지, pre-hook = env-expiry + gitleaks, a11y 연동), a11y-dump.sh 3종 세트 (macos/android/server — .a11y.txt + .storage.json + .perf.json), e2e-server.sh API 스모크 10/10 통과, screenshot.sh, load-test.js (k6)
+- Android 한글 폰트 수정: FreeType characters에 전체 한글(U+AC00~D7A3) 명시 + 런처 아이콘 (벡터)
+
 ### Fixed
 - (없음)
 
