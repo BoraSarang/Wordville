@@ -1,7 +1,7 @@
 // 문제 생성 파이프라인 (T2.1) — 생성 → 심판 루프 (최대 2회 재생성) → DB 저장
 // 사용법: npm run generate:questions -- [category] [date]
 import { pool } from '../db.js';
-import { chatCompletion } from './openrouter.js';
+import { chatCompletion } from './zen.js';
 import { buildGeneratePrompt, buildJudgePrompt, GENERATE_PROMPT_VERSION, JUDGE_PROMPT_VERSION } from './prompts.js';
 import { logger } from '../logger.js';
 
