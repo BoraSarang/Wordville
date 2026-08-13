@@ -67,27 +67,37 @@ export async function chatCompletion(
 
   logger.feature('zen', '진입', { model, prompt_version: promptVersion, messages: messages.length });
 
-  const res = await fetch(ZEN_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.zenApiKey}`,
-      'HTTP-Referer': 'https://github.com/BoraSarang/Wordville',
-      'X-Title': 'Wordville',
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature: opts.temperature ?? 0.2,
-      max_tokens: opts.maxTokens ?? 4096,
-      response_format: { type: 'json_object' },
-    }),
-  });
+  const MAX_RETRIES = 3;
+  const RETRY_DELAYS = [10_000, 30_000, 60_000];
 
-  if (!res.ok) {
-    const text = await res.text();
-    logger.error('Zen 호출 실패', { status: res.status, body: text.slice(0, 300) });
-    throw new Error(`E-SRV-GEN-1002: LLM 호출 실패 (${res.status})`);
+  let res: Response | null = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    res = await fetch(ZEN_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.zenApiKey}`,
+        'HTTP-Referer': 'https://github.com/BoraSarang/Wordville',
+        'X-Title': 'Wordville',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: opts.temperature ?? 0.2,
+        max_tokens: opts.maxTokens ?? 4096,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (res.status !== 429 || attempt === MAX_RETRIES) break;
+    logger.warn('Zen 429 (FreeUsageLimitError) — 재시도 대기', { attempt: attempt + 1, delay_ms: RETRY_DELAYS[attempt] });
+    await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
+  }
+
+  if (!res || !res.ok) {
+    const text = res ? await res.text() : 'no response';
+    logger.error('Zen 호출 실패', { status: res?.status ?? 0, body: text.slice(0, 300) });
+    throw new Error(`E-SRV-GEN-1002: LLM 호출 실패 (${res?.status ?? 0})`);
   }
 
   const data = (await res.json()) as {
