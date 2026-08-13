@@ -39,4 +39,4 @@
 | T6.3 | 세션 로그 + bd 정리 | common | ✅ (세션 로그 8줄 요약 작성) |
 | T7.1 | 일일 리마인더 알림 실기 테스트 (macOS) | macos | ✅ (Apple Development 서명으로 UNErrorDomain Code=1 해결, 00:00 KST 예약 확인) |
 | T7.2 | 서버 /debug 연동 실기 테스트 (패널 서버 탭) | macos | ✅ (Cmd+Shift+D → health db:up 106ms + 서버 로그 500건 + 2초 폴링) |
-| T7.3 | 시드 100문항 → 사용자 실기 검증 | common | ⏳ (macOS/Android 5콤보 배너 + 골든패스 실기 확인 대기) |
+| T7.3 | 시드 100문항 → 사용자 실기 검증 | common | ⏸️ 보류 (사용자 결정 — v0.4에서 진행) |
