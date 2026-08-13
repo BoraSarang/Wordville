@@ -71,6 +71,10 @@ struct PopoverRootView: View {
 
     private var menuList: some View {
         VStack(spacing: 2) {
+            MenuRow(icon: "gamecontroller.fill", title: "게임 열기", subtitle: "메인 화면 (게임 선택)") {
+                DebugLogger.shared.feature("게임열기", "팝오버에서 선택됨")
+                menuBar.openGame()
+            }
             MenuRow(icon: "bolt.fill", title: "1문제 퀵플레이", subtitle: "랜덤 문제 바로 도전") {
                 DebugLogger.shared.feature("퀵플레이", "팝오버에서 선택됨")
                 menuBar.openQuickPlay()
