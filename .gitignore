@@ -1,0 +1,56 @@
+# --- 시크릿 (절대 커밋 금지) ---
+.env
+*.env
+!*.env.example
+server/.env
+server/.env.local
+keystore/
+*.jks
+*.mobileprovision
+*.p12
+*.key
+
+# --- 빌드 산출물 ---
+build/
+dist/
+bin/
+out/
+*.app/
+*.apk
+*.aab
+*.dmg
+*.zip
+.turbo/
+DerivedData/
+build_and_run.sh.log
+
+# --- macOS ---
+.DS_Store
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+
+# --- Android ---
+.gradle/
+build/
+local.properties
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- 문서/로그 산출물 ---
+/.agent/
+docs/screenshots/**/*.png
+*.log
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp

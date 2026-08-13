@@ -1,0 +1,57 @@
+{
+  "version": "0.1.0",
+  "language_lock": {
+    "response": "ko",
+    "reasoning": "ko",
+    "enforced": true
+  },
+  "doc_first": {
+    "enabled": true,
+    "required_files": ["docs/plans/PLAN_v0.1_common.md", "docs/TODO.md", "docs/DESIGN.md"],
+    "session_auto_save_minutes": 15
+  },
+  "default_chain": ["openrouter/deepseek/deepseek-v4-flash-free"],
+  "models": {
+    "chat": {
+      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "temperature": 0.2,
+      "max_tokens": 4096,
+      "prompt_version": "chat_v0.1",
+      "vision_support": false
+    },
+    "code": {
+      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "temperature": 0.1,
+      "max_tokens": 8192,
+      "prompt_version": "code_v0.1",
+      "vision_support": false
+    },
+    "judge": {
+      "model": "openrouter/deepseek/deepseek-v4-flash-free",
+      "temperature": 0.0,
+      "max_tokens": 1024,
+      "prompt_version": "judge_v0.1",
+      "vision_support": false
+    }
+  },
+  "platforms": {
+    "macos": { "model": "code", "perf_budget": { "cold_start_ms": 1500, "fps": 60 } },
+    "android": { "model": "code", "perf_budget": { "cold_start_ms": 2000, "fps": 60 } },
+    "server": { "model": "judge", "perf_budget": { "p95_ms": 300, "memory_mb": 400 } }
+  },
+  "cache_policy": {
+    "enabled": true,
+    "ttl_days": 7,
+    "max_entries_server": 10000,
+    "hit_rate_target": 0.7,
+    "storage": "server in-memory + DB(questions 중복 방지)"
+  },
+  "cost_guard": {
+    "max_cost_per_task_usd": 0.0,
+    "alert_at_usd": 0.0,
+    "note": "deepseek-v4-flash-free 무료 모델 — 문제 생성 비용 $0"
+  },
+  "e2e": {
+    "k6_threshold_p95_ms": 300
+  }
+}
