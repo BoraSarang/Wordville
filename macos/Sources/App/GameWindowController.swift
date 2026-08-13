@@ -11,7 +11,8 @@ final class GameWindowController: NSObject {
     }
 
     func show() {
-        if let window, window.isVisible {
+        if let window {
+            // 닫힌 윈도우도 재사용 (재생성 시 use-after-free 방지)
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
             return

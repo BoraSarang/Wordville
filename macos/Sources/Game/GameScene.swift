@@ -49,6 +49,10 @@ final class GameScene: SKScene {
         brown: SKColor(hex: 0x5B4636)
     )
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     override func didMove(to view: SKView) {
         backgroundColor = palette.cream
         size = CGSize(width: Self.canvasW, height: Self.canvasH)
