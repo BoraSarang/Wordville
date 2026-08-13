@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1CF7E54C6975BF1DA502018B /* Galmuri11-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6F8251550A45AC9BF3E71CC9 /* Galmuri11-Bold.ttf */; };
 		1D1C575B4AA0FCFB31440340 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */; };
 		1FC9D1EC502C1A3DA26B2E34 /* DebugPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7ED78E6E8A7817A20C76C3 /* DebugPanelView.swift */; };
 		39CAD8DB9D33357A22CC28E8 /* GameRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE757A09CF55BD63797C874A /* GameRootView.swift */; };
 		4B8761452B4DDE266C9FF4BC /* GameWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA6D6D7C5CF987F6AF1732C8 /* GameWindowController.swift */; };
+		508558D744013D62364C7C70 /* Galmuri11.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0CA4CFB9147887CFA0E1C390 /* Galmuri11.ttf */; };
 		51EDA887FE66AA86E7058647 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E445134237B1DF04E55A8E /* SettingsView.swift */; };
 		544F4123BF183B2795E58C4D /* GameViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC5D1A577214827BD5C305E /* GameViewRepresentable.swift */; };
 		67534E964234E8B987898BF8 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A3DCD96B82AE78426A2AEC /* GameScene.swift */; };
@@ -20,6 +22,7 @@
 		9FC360FBC422A8DAF27F9A4C /* WordvilleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19078E143C4C812EF143F465 /* WordvilleApp.swift */; };
 		AB04AADA664BD1734C274984 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9718D5F145698B89DA17CD3F /* GameViewController.swift */; };
 		D36BD5BCD1309B6E1A585F13 /* PopoverRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8C159059158364B501DA29 /* PopoverRootView.swift */; };
+		E8EF71F73FF446A3CD7F7EFE /* NeoDunggeunmo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3069BB3D96BB75B6EBAAE925 /* NeoDunggeunmo.ttf */; };
 		F5971039CE02D853DEC09FED /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06DB76976F6CDE84193415CE /* MenuBarController.swift */; };
 		FEF48598139C6939CF50A054 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A09B2546E8E5A1E56DF6ECC /* APIClient.swift */; };
 /* End PBXBuildFile section */
@@ -27,9 +30,12 @@
 /* Begin PBXFileReference section */
 		05079EB6B880C9B4BBA8B0CB /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		06DB76976F6CDE84193415CE /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		0CA4CFB9147887CFA0E1C390 /* Galmuri11.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Galmuri11.ttf; sourceTree = "<group>"; };
 		19078E143C4C812EF143F465 /* WordvilleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordvilleApp.swift; sourceTree = "<group>"; };
 		20A72AC97A0EF4BFFCFE53F3 /* GameData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameData.swift; sourceTree = "<group>"; };
+		3069BB3D96BB75B6EBAAE925 /* NeoDunggeunmo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NeoDunggeunmo.ttf; sourceTree = "<group>"; };
 		4A09B2546E8E5A1E56DF6ECC /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		6F8251550A45AC9BF3E71CC9 /* Galmuri11-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Galmuri11-Bold.ttf"; sourceTree = "<group>"; };
 		7272C377AA8F2AC054907B9E /* Wordville.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wordville.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92F4EFEF27A51A3CB7DB3D90 /* GameModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModels.swift; sourceTree = "<group>"; };
 		9718D5F145698B89DA17CD3F /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
@@ -74,9 +80,20 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		7E7E85886119C3C203C95C1B /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				6F8251550A45AC9BF3E71CC9 /* Galmuri11-Bold.ttf */,
+				0CA4CFB9147887CFA0E1C390 /* Galmuri11.ttf */,
+				3069BB3D96BB75B6EBAAE925 /* NeoDunggeunmo.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		92BDA703A96C1F4AFEE6B194 = {
 			isa = PBXGroup;
 			children = (
+				B51A34002D53FFFA81965A4A /* Resources */,
 				648494F5C36B8B7775DDDD67 /* Sources */,
 				EB9EBDE750C37B4A841497C2 /* Products */,
 			);
@@ -93,6 +110,14 @@
 				BEC5D1A577214827BD5C305E /* GameViewRepresentable.swift */,
 			);
 			path = Game;
+			sourceTree = "<group>";
+		};
+		B51A34002D53FFFA81965A4A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7E7E85886119C3C203C95C1B /* Fonts */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		EB9EBDE750C37B4A841497C2 /* Products */ = {
@@ -122,6 +147,7 @@
 			buildConfigurationList = 918DDC03AC5CCABB236FEC30 /* Build configuration list for PBXNativeTarget "Wordville" */;
 			buildPhases = (
 				B319E89A0E1F06C36FE1CA13 /* Sources */,
+				5075B33FE139751930F445A5 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -163,6 +189,19 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5075B33FE139751930F445A5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CF7E54C6975BF1DA502018B /* Galmuri11-Bold.ttf in Resources */,
+				508558D744013D62364C7C70 /* Galmuri11.ttf in Resources */,
+				E8EF71F73FF446A3CD7F7EFE /* NeoDunggeunmo.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B319E89A0E1F06C36FE1CA13 /* Sources */ = {

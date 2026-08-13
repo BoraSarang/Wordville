@@ -23,8 +23,8 @@
 | T2.2 | 심판 검증 루프 (최대 2회 재생성) | server | ⏳ |
 | T2.3 | Render Cron + 시드 문제 100개 | server | ⏳ |
 | T2.4 | 오답 임베딩 + 문제 선별 | server | ⏳ |
-| T3.1 | macOS 메뉴바 앱 골격 + 설정(Dock 토글) | macos | ⏳ |
-| T3.2 | SpriteKit 게임 루프 | macos | ⏳ |
+| T3.1 | macOS 메뉴바 앱 골격 + 설정(Dock 토글) | macos | ✅ |
+| T3.2 | SpriteKit 게임 루프 | macos | ✅ |
 | T3.3 | 에셋 통합 + 폰트 + 오프라인 저장 | macos | ⏳ |
 | T3.4 | 빌드 + 배포(/Users/lee/Applications) + 맥 테스트 | macos | ⏳ |
 | T4.1 | Android libGDX 골격 + 게임 루프 이식 | android | ⏳ |

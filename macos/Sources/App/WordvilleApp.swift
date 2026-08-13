@@ -1,5 +1,6 @@
 // WordvilleApp — @main 진입점 (메뉴바 아이콘 + 게임 윈도우 하이브리드)
 import SwiftUI
+import CoreText
 
 @main
 struct WordvilleApp: App {
@@ -19,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let gameWindow = GameWindowController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        registerBundledFonts()
         gameWindow.setup()
         menuBar.gameWindow = gameWindow
         menuBar.setup()
@@ -30,5 +32,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    private func registerBundledFonts() {
+        guard let resourceURL = Bundle.main.resourceURL else { return }
+        for name in ["NeoDunggeunmo.ttf", "Galmuri11.ttf", "Galmuri11-Bold.ttf"] {
+            let url = resourceURL.appendingPathComponent(name)
+            var error: Unmanaged<CFError>?
+            CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error)
+            if let error = error?.takeRetainedValue() {
+                DebugLogger.shared.log(.error, "폰트", "등록 실패", meta: ["font": name, "error": String(describing: error)])
+            } else {
+                DebugLogger.shared.log(.info, "폰트", "등록됨", meta: ["font": name])
+            }
+        }
     }
 }

@@ -101,9 +101,9 @@ final class GameScene: SKScene {
         return rect
     }
 
-    private func makeLabel(_ text: String, size: CGFloat, color: SKColor = .black) -> SKLabelNode {
+    private func makeLabel(_ text: String, size: CGFloat, color: SKColor = .black, font: FontKind = .ui) -> SKLabelNode {
         let label = SKLabelNode(text: text)
-        label.fontName = "AppleSDGothicNeo-Bold"
+        label.fontName = font.name
         label.fontSize = size
         label.fontColor = color
         label.verticalAlignmentMode = .center
@@ -111,6 +111,18 @@ final class GameScene: SKScene {
         label.preferredMaxLayoutWidth = 320
         label.lineBreakMode = .byWordWrapping
         return label
+    }
+
+    private enum FontKind {
+        case ui, body, emoji
+
+        var name: String {
+            switch self {
+            case .ui: return "Galmuri11-Bold"
+            case .body: return "NeoDunggeunmo-Regular"
+            case .emoji: return "AppleSDGothicNeo-Bold"
+            }
+        }
     }
 
     private func clearLayers() {
@@ -130,7 +142,7 @@ final class GameScene: SKScene {
         title.position = CGPoint(x: Self.canvasW / 2, y: 620)
         addChild(title)
 
-        let sub = makeLabel("오늘의 에피소드: \(episodeTitle)", size: 16, color: palette.brown)
+        let sub = makeLabel("오늘의 에피소드: \(episodeTitle)", size: 16, color: palette.brown, font: .body)
         sub.position = CGPoint(x: Self.canvasW / 2, y: 560)
         addChild(sub)
 
@@ -147,7 +159,7 @@ final class GameScene: SKScene {
         cancel.position = CGPoint(x: 28, y: 750)
         addChild(cancel)
         let cancelLabel = SKLabelNode(text: "✕")
-        cancelLabel.fontName = "AppleSDGothicNeo-Bold"
+        cancelLabel.fontName = "Galmuri11-Bold"
         cancelLabel.fontSize = 16
         cancelLabel.fontColor = palette.brown
         cancelLabel.verticalAlignmentMode = .center
@@ -171,25 +183,26 @@ final class GameScene: SKScene {
         addChild(characterNode)
 
         // 고민 연출
-        let think = makeLabel("🤔", size: 34, color: .black)
+        let think = makeLabel("🤔", size: 34, color: .black, font: .emoji)
         think.position = CGPoint(x: Self.canvasW / 2 + 40, y: 560)
         addChild(think)
 
         // 읽기 안내
-        let hint = makeLabel("지문을 잘 읽어보세요!", size: 15, color: palette.brown)
+        let hint = makeLabel("지문을 잘 읽어보세요!", size: 15, color: palette.brown, font: .body)
         hint.position = CGPoint(x: Self.canvasW / 2, y: 350)
         addChild(hint)
 
         // 대화창
-        dialogBox = SKShapeNode(rectOf: CGSize(width: 320, height: 140), cornerRadius: 12)
+        dialogBox = SKShapeNode(rectOf: CGSize(width: 320, height: 150), cornerRadius: 12)
         dialogBox.fillColor = .white
         dialogBox.strokeColor = palette.brown
         dialogBox.lineWidth = 3
         dialogBox.position = CGPoint(x: Self.canvasW / 2, y: 220)
         addChild(dialogBox)
 
-        dialogLabel = makeLabel("", size: 17, color: .black)
-        dialogLabel.position = CGPoint(x: Self.canvasW / 2, y: 230)
+        dialogLabel = makeLabel("", size: 17, color: .black, font: .body)
+        dialogLabel.position = CGPoint(x: Self.canvasW / 2, y: 225)
+        dialogLabel.preferredMaxLayoutWidth = 300
         addChild(dialogLabel)
 
         progressLabel = makeLabel("\(index + 1) / \(questions.count)", size: 14, color: palette.brown)
@@ -261,35 +274,36 @@ final class GameScene: SKScene {
         addChild(bannerLabel)
 
         // 지문 박스
-        let textBox = SKShapeNode(rectOf: CGSize(width: 330, height: 190), cornerRadius: 10)
+        let textBox = SKShapeNode(rectOf: CGSize(width: 330, height: 180), cornerRadius: 10)
         textBox.fillColor = .white
         textBox.strokeColor = palette.brown
         textBox.lineWidth = 3
-        textBox.position = CGPoint(x: Self.canvasW / 2, y: 520)
+        textBox.position = CGPoint(x: Self.canvasW / 2, y: 535)
         addChild(textBox)
 
-        let textLabel = makeLabel(question.narrative, size: 16, color: .black)
-        textLabel.position = CGPoint(x: Self.canvasW / 2, y: 530)
+        let textLabel = makeLabel(question.narrative, size: 16, color: .black, font: .body)
+        textLabel.position = CGPoint(x: Self.canvasW / 2, y: 535)
+        textLabel.preferredMaxLayoutWidth = 300
         addChild(textLabel)
 
         // 선택지 4개 (A~D)
         choiceButtons.removeAll()
         for (i, choice) in question.choices.enumerated() {
-            let y = 384 - CGFloat(i) * 72
+            let y = 388 - CGFloat(i) * 76
             let btn = makeButton(width: 310, height: 62, color: palette.cream, name: "choice_\(i)")
             btn.position = CGPoint(x: Self.canvasW / 2, y: y)
             addChild(btn)
             choiceButtons.append(btn)
 
             let prefix = SKLabelNode(text: ["A", "B", "C", "D"][i])
-            prefix.fontName = "AppleSDGothicNeo-Bold"
+            prefix.fontName = "Galmuri11-Bold"
             prefix.fontSize = 20
             prefix.fontColor = palette.brown
             prefix.verticalAlignmentMode = .center
             prefix.position = CGPoint(x: Self.canvasW / 2 - 130, y: y)
             addChild(prefix)
 
-            let choiceLabel = makeLabel(choice.text, size: 14, color: .black)
+            let choiceLabel = makeLabel(choice.text, size: 14, color: .black, font: .body)
             choiceLabel.position = CGPoint(x: Self.canvasW / 2 + 10, y: y)
             choiceLabel.horizontalAlignmentMode = .center
             choiceLabel.preferredMaxLayoutWidth = 240
@@ -298,7 +312,7 @@ final class GameScene: SKScene {
 
         // 캐릭터 (문제 화면 하단)
         let char = makeCharacter()
-        char.position = CGPoint(x: Self.canvasW / 2, y: 90)
+        char.position = CGPoint(x: Self.canvasW / 2, y: 85)
         addChild(char)
     }
 
@@ -321,7 +335,7 @@ final class GameScene: SKScene {
 
         // 정답 선택지 텍스트
         if let question = currentQuestion, let correctChoice = question.choices.first(where: { $0.isCorrect }) {
-            let ansLabel = makeLabel(correct ? "정답: \(correctChoice.text)" : "다시 풀어볼까요?", size: 16, color: palette.brown)
+            let ansLabel = makeLabel(correct ? "정답: \(correctChoice.text)" : "다시 풀어볼까요?", size: 16, color: palette.brown, font: .body)
             ansLabel.position = CGPoint(x: Self.canvasW / 2, y: 520)
             addChild(ansLabel)
         }
@@ -333,7 +347,7 @@ final class GameScene: SKScene {
         explBox.lineWidth = 3
         explBox.position = CGPoint(x: Self.canvasW / 2, y: 430)
         addChild(explBox)
-        let explLabel = makeLabel(explanation, size: 14, color: .black)
+        let explLabel = makeLabel(explanation, size: 14, color: .black, font: .body)
         explLabel.position = CGPoint(x: Self.canvasW / 2, y: 435)
         addChild(explLabel)
 
@@ -341,11 +355,11 @@ final class GameScene: SKScene {
         let char = makeCharacter()
         char.position = CGPoint(x: Self.canvasW / 2, y: 170)
         addChild(char)
-        let mood = makeLabel(correct ? "🎉" : "😢", size: 30, color: .black)
+        let mood = makeLabel(correct ? "🎉" : "😢", size: 30, color: .black, font: .emoji)
         mood.position = CGPoint(x: Self.canvasW / 2, y: 265)
         addChild(mood)
 
-        let actionLabel = makeLabel(correct ? "다음 장면으로 →" : "같은 문제 다시 풀기", size: 18, color: palette.brown)
+        let actionLabel = makeLabel(correct ? "다음 장면으로 →" : "같은 문제 다시 풀기", size: 18, color: palette.brown, font: .body)
         let next = makeButton(width: 240, height: 56, color: palette.sky, name: correct ? "next_scene" : "retry")
         next.position = CGPoint(x: Self.canvasW / 2, y: 320)
         addChild(next)
@@ -364,7 +378,7 @@ final class GameScene: SKScene {
         title.position = CGPoint(x: Self.canvasW / 2, y: 600)
         addChild(title)
 
-        let stats = makeLabel("\(correctCount)문제 정답 · EXP +\(totalExp)", size: 18, color: .black)
+        let stats = makeLabel("\(correctCount)문제 정답 · EXP +\(totalExp)", size: 18, color: .black, font: .body)
         stats.position = CGPoint(x: Self.canvasW / 2, y: 520)
         addChild(stats)
 
