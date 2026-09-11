@@ -47,7 +47,7 @@ pnpm-debug.log*
 
 # --- 문서/로그 산출물 ---
 /.agent/
-docs/screenshots/**/*.png
+docs/screenshots/
 *.log
 
 # --- IDE ---

@@ -99,7 +99,8 @@ macos_debug() {
 android_debug() {
   [ -d "$ROOT/android" ] || fail "android/ 프로젝트 없음"
   [ -d "$JAVA_HOME_DEFAULT" ] && export JAVA_HOME="$JAVA_HOME_DEFAULT"
-  log "Android APK 빌드 시작 (JAVA_HOME=${JAVA_HOME:-시스템})"
+  export ANDROID_HOME
+  log "Android APK 빌드 시작 (JAVA_HOME=${JAVA_HOME:-시스템}, ANDROID_HOME=$ANDROID_HOME)"
   cd "$ROOT/android"
   ./gradlew :app:assembleDebug
   [ -f "$APK_OUT" ] || fail "APK 산출물 없음: $APK_OUT"
